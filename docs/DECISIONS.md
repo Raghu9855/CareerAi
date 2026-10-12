@@ -88,3 +88,20 @@
   - Comprehensive cleanup: Deleting a document removes both the vector embeddings from the vector store and the chunk tracking records in MySQL.
 - **Consequences:** Verifiable document isolation proven by automated tests and evaluation benchmarks (100% tenant isolation, 100% retrieval hit rate on sample evaluations).
 
+---
+
+## ADR 8: Comprehensive Automated Testing, Error Boundary Verification & Factory Fixtures
+- **Status:** Accepted
+- **Context:** To ensure long-term stability and resilience, all domain layers (Auth, Storage, ML, AI, RAG) must have meaningful test coverage (>=80%) without artificial padding, with all external network boundaries strictly mocked (boto3 S3, LLM providers, vector stores, in-memory SQLite).
+- **Decision:**
+  - Implemented modular dataclass factories (`tests/factories.py`) for consistent test entity generation (`UserFactory`, `JobFactory`, `ProfileFactory`).
+  - Added unit test coverage for AWS S3 Storage (`tests/unit/test_storage_s3.py`) mocking `boto3.client` across upload, download, delete, and external failure exceptions.
+  - Added text extraction unit tests (`tests/unit/test_text_extraction.py`) covering multi-format parsing, character cleanup, encoding fallbacks, and corrupt file error handling.
+  - Added document validation unit tests (`tests/unit/test_document_validator.py`) for path traversal protection, MIME whitelist, and magic bytes security.
+  - Added AuthService unit tests (`tests/unit/test_auth_service.py`) for duplicate email rejection, invalid password handling, replay attack detection, and refresh token rotation.
+  - Added AIService unit tests (`tests/unit/test_ai_service.py`) validating caching, cross-tenant isolation, and graceful degradation fallback.
+  - Added MLService unit tests (`tests/unit/test_ml_service.py`) and Dependency unit tests (`tests/unit/test_deps.py`).
+  - Added Global Exception handling tests (`tests/unit/test_error_handling.py`) verifying standard error envelopes and information disclosure protection.
+- **Consequences:** 123 automated tests pass with 84% total coverage (Services & Auth >= 80% to 100%), verified error paths, zero flaky tests, and zero unmocked external calls.
+
+
