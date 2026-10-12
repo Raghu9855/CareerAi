@@ -104,4 +104,21 @@
   - Added Global Exception handling tests (`tests/unit/test_error_handling.py`) verifying standard error envelopes and information disclosure protection.
 - **Consequences:** 123 automated tests pass with 84% total coverage (Services & Auth >= 80% to 100%), verified error paths, zero flaky tests, and zero unmocked external calls.
 
+---
+
+## ADR 9: Multi-Stage Containerization & Automated GitHub Actions CI/CD Pipeline
+- **Status:** Accepted
+- **Context:** Production deployments require reproducible, minimal, secure container images running as unprivileged users, coupled with continuous integration pipelines that validate formatting, typing, coverage, and build artifacts prior to deployment.
+- **Decision:**
+  - Multi-stage Dockerfile:
+    - Stage 1 (`builder`): Compiles dependencies into isolated `/opt/venv`, keeping compile-time headers (`build-essential`, `pkg-config`) out of the final image.
+    - Stage 2 (`runner`): Minimal `python:3.12-slim` base, non-root user `careerai` (UID: 10001), built-in healthcheck probing `/health` endpoint.
+  - Development and production Docker Compose profiles (`docker-compose.yml`, `docker-compose.prod.yml`) isolating service networks and resource caps.
+  - GitHub Actions Workflow (`.github/workflows/ci.yml`):
+    - Fast static gate: Ruff linting and Mypy static type checking.
+    - Integration test gate: Runs full pytest test suite against isolated service containers, enforcing a strict `--cov-fail-under=80` coverage bar.
+    - Deployment gate: Automatic Docker Buildx build, commit SHA tagging, and push to Amazon ECR upon merge to `main`.
+- **Consequences:** Hermetic builds, minimal vulnerability surface (<150MB compressed), and automated verification before any image reaches staging/production.
+
+
 
