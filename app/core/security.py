@@ -62,8 +62,11 @@ def create_refresh_token(
     now = datetime.now(UTC)
     expire = now + expires_delta if expires_delta else now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
 
+    import uuid
+
     to_encode: dict[str, Any] = {
         "sub": str(subject),
+        "jti": str(uuid.uuid4()),
         "iat": int(now.timestamp()),
         "exp": int(expire.timestamp()),
         "type": "refresh",

@@ -42,4 +42,7 @@ class TokenRepository(BaseRepository[RefreshToken]):
         token = await self.get_by_token_hash(token_hash)
         if not token or token.is_revoked:
             return False
-        return token.expires_at > datetime.now(UTC)
+        expires_at = token.expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=UTC)
+        return expires_at > datetime.now(UTC)

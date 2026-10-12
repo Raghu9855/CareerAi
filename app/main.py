@@ -19,6 +19,7 @@ from app.core.logging import get_logger, setup_logging
 from app.db.session import close_db_connections, get_engine
 from app.middleware.access_log import AccessLogMiddleware
 from app.middleware.request_id import RequestIdMiddleware
+from app.middleware.security import SecurityHeadersMiddleware
 
 logger = get_logger("careerai.main")
 
@@ -72,6 +73,7 @@ def create_app() -> FastAPI:
     )
 
     # Custom Middlewares (order: outermost to innermost)
+    app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(AccessLogMiddleware)
     app.add_middleware(RequestIdMiddleware)
 

@@ -2,12 +2,32 @@
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.deps import get_user_service
+from app.api.deps import get_current_user, get_user_service
+from app.models.user import User
 from app.schemas.common import PaginatedResponse, PaginationParams
 from app.schemas.user import UserCreate, UserResponse, UserUpdate
 from app.services.user_service import UserService
 
 router = APIRouter(prefix="/users", tags=["Users"])
+
+
+@router.get("/me", response_model=UserResponse, summary="Get current logged-in user profile")
+async def get_my_profile(
+    current_user: User = Depends(get_current_user),
+) -> UserResponse:
+    """Retrieve profile of the currently authenticated user."""
+    return UserResponse.model_validate(current_user)
+
+
+@router.put("/me", response_model=UserResponse, summary="Update current logged-in user profile")
+async def update_my_profile(
+    payload: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    service: UserService = Depends(get_user_service),
+) -> UserResponse:
+    """Update profile attributes of the currently authenticated user."""
+    updated = await service.update_user(current_user.id, payload)
+    return UserResponse.model_validate(updated)
 
 
 @router.post(
