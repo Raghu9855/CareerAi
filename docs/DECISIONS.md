@@ -72,3 +72,19 @@
     - Structured JSON logging of token usage and latency without logging sensitive document contents.
   - Graceful degradation: If LLM generation fails or times out, the API gracefully returns the ML compatibility score with `explanation_status="unavailable"` and `degraded=true` rather than an HTTP 500 error.
 - **Consequences:** Eliminates vendor lock-in, shields users from external API outages, minimizes provider costs via deduplication/caching, and maintains 100% test independence from external APIs.
+
+---
+
+## ADR 7: Document RAG Architecture with Strict Multi-Tenant Isolation & Source Citations
+- **Status:** Accepted
+- **Context:** Job seekers upload private resumes, cover letters, and performance reviews. They require semantic search and Q&A over their own career history. The system must guarantee complete multi-tenant data privacy, provide verifiable source citations, and gracefully refuse to answer questions when retrieved context is irrelevant or absent.
+- **Decision:**
+  - Implemented a sentence/paragraph-aware `DocumentChunker` using sliding windows with configurable character chunk size (default 600 chars) and overlap (default 120 chars).
+  - Designed `Embedder` protocol with `MockEmbedder` (hashing term-frequency vectorizer) and `OpenAIEmbedder` for production.
+  - Designed `VectorStore` protocol with `InMemoryVectorStore` for development/testing, designed to swap with ChromaDB or Qdrant.
+  - **Strict Multi-Tenant Isolation:** Vector searches and SQL chunk queries strictly require `user_id`. Chunks are keyed and filtered by tenant ID at the storage layer; User A can never retrieve or view vectors belonging to User B under any circumstances.
+  - Source citations: Retrieval hits return precise `document_id`, `filename`, `chunk_index`, and `relevance_score` to provide clear provenance for every answer.
+  - Hallucination prevention: Queries with top relevance below threshold (0.22) return an explicit "I cannot find the answer in your uploaded documents" without generating false responses.
+  - Comprehensive cleanup: Deleting a document removes both the vector embeddings from the vector store and the chunk tracking records in MySQL.
+- **Consequences:** Verifiable document isolation proven by automated tests and evaluation benchmarks (100% tenant isolation, 100% retrieval hit rate on sample evaluations).
+

@@ -11,6 +11,7 @@ from app.api.v1.routes import (
     jobs,
     ml,
     profiles,
+    rag,
     skills,
     users,
 )
@@ -27,5 +28,6 @@ api_v1_router.include_router(applications.router)
 api_v1_router.include_router(documents.router)
 api_v1_router.include_router(ml.router)
 api_v1_router.include_router(ai.router)
+api_v1_router.include_router(rag.router)
 
 __all__ = ["api_v1_router"]

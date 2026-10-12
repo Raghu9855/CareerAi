@@ -57,11 +57,15 @@ def override_settings():
 @pytest.fixture(autouse=True)
 async def setup_test_db() -> AsyncGenerator[None, None]:
     """Create all database tables before each test and drop them afterwards."""
+    from app.core.rate_limit import limiter
+
+    limiter.reset()
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+    limiter.reset()
 
 
 @pytest.fixture
