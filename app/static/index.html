@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareerAI — AI Resume Fit & Job Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #07090e;
+      --bg-surface: #0f1422;
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --bg-card-hover: rgba(26, 34, 54, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(99, 102, 241, 0.5);
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-glow: rgba(99, 102, 241, 0.35);
+      --accent: #8b5cf6;
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.25);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.06) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Navigation */
+    header {
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(7, 9, 14, 0.8);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .brand-logo svg {
+      width: 20px;
+      height: 20px;
+      color: white;
+    }
+
+    .brand-text h1 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--success);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    .hero-banner {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-banner h2 {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-banner h2 span {
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-banner p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* App Layout */
+    .app-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .app-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Tabs */
+    .tabs-nav {
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.3rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.6rem 1rem;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Preset Templates Bar */
+    .presets-container {
+      margin-bottom: 1.25rem;
+    }
+
+    .presets-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .preset-chip {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .preset-chip:hover {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: var(--primary);
+      color: var(--text-main);
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      background: rgba(11, 15, 25, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      transition: all 0.2s ease;
+      resize: vertical;
+    }
+
+    textarea:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+      background: rgba(15, 20, 34, 0.95);
+    }
+
+    /* Drop Zone */
+    .drop-zone {
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.01);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      margin-bottom: 1.25rem;
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .drop-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 0.75rem;
+      border-radius: 12px;
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary);
+      display: grid;
+      place-items: center;
+    }
+
+    .drop-zone h4 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .drop-zone p {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    /* Primary Action Button */
+    .btn-primary {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 24px var(--primary-glow);
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Results Dashboard Cards */
+    .score-hero {
+      display: flex;
+      align-items: center;
+      gap: 1.75rem;
+      padding: 1.75rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Radial Score Dial */
+    .score-dial {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      flex-shrink: 0;
+    }
+
+    .score-dial svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .dial-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 8;
+    }
+
+    .dial-fill {
+      fill: none;
+      stroke: var(--primary);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      transition: stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.5s ease;
+    }
+
+    .score-number {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: white;
+      text-align: center;
+    }
+
+    .score-details h3 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .score-details p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .meta-badges {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .badge.green {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--success);
+    }
+
+    .badge.purple {
+      background: rgba(139, 92, 246, 0.12);
+      border-color: rgba(139, 92, 246, 0.3);
+      color: var(--accent);
+    }
+
+    /* Skills Pill Containers */
+    .skills-block {
+      margin-bottom: 1.5rem;
+    }
+
+    .skills-block h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pill-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .skill-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+    }
+
+    .skill-pill.matched {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+
+    .skill-pill.gap {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+    }
+
+    .gap-priority {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      padding: 0.1rem 0.35rem;
+      background: rgba(245, 158, 11, 0.25);
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    /* Guidance Section */
+    .guidance-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .guidance-box h5 {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .guidance-box p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .guidance-list {
+      list-style: none;
+      margin-top: 0.5rem;
+    }
+
+    .guidance-list li {
+      position: relative;
+      padding-left: 1.25rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.825rem;
+      color: var(--text-muted);
+    }
+
+    .guidance-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    /* RAG Q&A Interactive Panel */
+    .rag-search-box {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .rag-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+    }
+
+    .rag-btn {
+      padding: 0.75rem 1.25rem;
+      border: none;
+      border-radius: 10px;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .rag-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .citation-card {
+      background: rgba(99, 102, 241, 0.05);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 10px;
+      padding: 0.85rem;
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+    }
+
+    .citation-header {
+      font-weight: 600;
+      color: #a5b4fc;
+      margin-bottom: 0.25rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .citation-text {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="/ui" class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>CareerAI Intelligence</h1>
+        </div>
+      </a>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <a href="/docs" target="_blank" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 500;">API Docs</a>
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          <span>Engine v1.0.0 Online</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main>
+    <div class="hero-banner">
+      <h2>Is Your Resume <span>Ready for the Role?</span></h2>
+      <p>Instant ML compatibility scoring, verified skill-gap ranking, and AI interview prep recommendations backed by multi-tenant intelligence.</p>
+    </div>
+
+    <div class="app-grid">
+      
+      <!-- Left Panel: Input & Resume Ingestion -->
+      <section class="card">
+        <div class="card-title">
+          <span>Candidate & Job Specification</span>
+        </div>
+        <div class="card-subtitle">Input your career profile and the target job description to run real-time analysis.</div>
+
+        <!-- Mode Tabs -->
+        <div class="tabs-nav">
+          <button class="tab-btn active" id="tab-text" onclick="switchMode('text')">Text Input</button>
+          <button class="tab-btn" id="tab-file" onclick="switchMode('file')">Upload File (PDF/DOCX)</button>
+        </div>
+
+        <!-- Preset Templates for quick evaluation -->
+        <div class="presets-container">
+          <span class="presets-label">Quick-Fill Demonstration Profiles:</span>
+          <div class="preset-chips">
+            <button class="preset-chip" onclick="loadPreset('cloud')">⚡ Cloud Architect (AWS & ECS)</button>
+            <button class="preset-chip" onclick="loadPreset('fullstack')">⚡ Full-Stack Python Engineer</button>
+            <button class="preset-chip" onclick="loadPreset('junior')">⚡ Junior Developer (Skill Gap)</button>
+          </div>
+        </div>
+
+        <!-- File Upload Form (Hidden by default) -->
+        <div id="file-input-section" style="display: none;">
+          <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-upload').click()">
+            <div class="drop-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+              </svg>
+            </div>
+            <h4 id="file-label">Click or Drag & Drop Resume File</h4>
+            <p>Supports verified PDF, DOCX, or TXT documents (Max 10MB)</p>
+            <input type="file" id="file-upload" accept=".pdf,.docx,.txt" style="display: none;" onchange="handleFileSelect(this)">
+          </div>
+        </div>
+
+        <!-- Resume Text Area -->
+        <div class="form-group" id="text-input-section">
+          <label for="resume-text">Resume / Career Profile Experience</label>
+          <textarea id="resume-text" rows="6" placeholder="Paste your resume content, certifications, work history, and tools here..."></textarea>
+        </div>
+
+        <!-- Job Description Area -->
+        <div class="form-group">
+          <label for="job-desc">Target Job Description & Requirements</label>
+          <textarea id="job-desc" rows="5" placeholder="Paste the target job description or requirements..."></textarea>
+        </div>
+
+        <!-- Optional Job Skills -->
+        <div class="form-group">
+          <label for="job-skills">Required Key Skills (Comma-separated)</label>
+          <input type="text" id="job-skills" placeholder="e.g. Python, FastAPI, Docker, MySQL, AWS">
+        </div>
+
+        <!-- Submit Button -->
+        <button class="btn-primary" id="analyze-btn" onclick="runAnalysis()">
+          <span class="spinner" id="btn-spinner"></span>
+          <span id="btn-text">Analyze Fit & Readiness</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </section>
+
+      <!-- Right Panel: Intelligence Dashboard -->
+      <section class="card" id="results-panel">
+        <div class="card-title">
+          <span>Compatibility & Fit Dashboard</span>
+          <span class="badge green" id="result-status-badge">Ready for Analysis</span>
+        </div>
+        <div class="card-subtitle">Real-time inference generated by RandomForestRegressor and LLM advisor.</div>
+
+        <!-- Score Hero Block -->
+        <div class="score-hero">
+          <div class="score-dial">
+            <svg viewBox="0 0 100 100">
+              <circle class="dial-bg" cx="50" cy="50" r="45"></circle>
+              <circle class="dial-fill" id="score-circle" cx="50" cy="50" r="45"></circle>
+            </svg>
+            <div class="score-number" id="score-text">--</div>
+          </div>
+          <div class="score-details">
+            <h3 id="verdict-title">Awaiting Input</h3>
+            <p id="verdict-desc">Submit your resume and role requirements to calculate alignment.</p>
+            <div class="meta-badges">
+              <span class="badge purple" id="model-badge">Model: v1.0.0</span>
+              <span class="badge" id="latency-badge">Latency: -- ms</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Matched Skills -->
+        <div class="skills-block">
+          <h4>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Matched Skills (<span id="matched-count">0</span>)
+          </h4>
+          <div class="pill-grid" id="matched-skills-container">
+            <span style="color: var(--text-dim); font-size: 0.85rem;">No skills analyzed yet.</span>
+          </div>
+        </div>
+
+        <!-- Missing Skills Gap -->
+        <div class="skills-block">
+          <h4>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            Identified Skill Gaps (<span id="gap-count">0</span>)
+          </h4>
+          <div class="pill-grid" id="missing-skills-container">
+            <span style="color: var(--text-dim); font-size: 0.85rem;">No gaps detected yet.</span>
+          </div>
+        </div>
+
+        <!-- AI Guidance / Interview Recommendations -->
+        <div class="guidance-box" id="ai-guidance-box" style="display: none;">
+          <h5>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            Strategic Career Guidance
+          </h5>
+          <p id="guidance-summary">Summary overview will appear here...</p>
+          <ul class="guidance-list" id="guidance-bullets"></ul>
+        </div>
+
+        <!-- Interactive RAG Search on Analyzed Resume -->
+        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-subtle); padding-top: 1.5rem;">
+          <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;">🔍 Ask Questions Over This Resume (RAG)</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Semantic search with source citations powered by the RAG pipeline.</p>
+          <div class="rag-search-box">
+            <input type="text" id="rag-query-input" class="rag-input" placeholder="e.g. What cloud certifications does the candidate hold?">
+            <button class="rag-btn" onclick="askRAG()">Query</button>
+          </div>
+          <div id="rag-response-container"></div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    // Demo Preset Configurations
+    const PRESETS = {
+      cloud: {
+        resume: `Alice Smith — Lead Cloud Architect & Backend Systems Engineer
+Experienced in designing, deploying, and maintaining cloud platforms on AWS (ECS, Fargate, S3, RDS, CloudWatch).
+Built robust microservices using Python, FastAPI, and SQLAlchemy.
+Optimized high-concurrency MySQL databases and implemented Redis caching clusters.
+Automated multi-region infrastructure using Terraform and configured CI/CD with Docker and GitHub Actions.
+Certifications: AWS Certified Solutions Architect Professional.`,
+        job: `Senior Cloud Platform Engineer
+We are seeking an experienced Senior Cloud Engineer to manage our microservices infrastructure.
+Requirements:
+- Strong background with Python and FastAPI backend development.
+- Deep expertise in AWS containerized environments (ECS Fargate or Kubernetes).
+- Hands-on experience with MySQL and Redis caching.
+- Infrastructure-as-Code proficiency using Terraform.
+- Familiarity with CI/CD pipelines and Docker.`,
+        skills: "Python, FastAPI, AWS, ECS, MySQL, Redis, Docker, Terraform"
+      },
+      fullstack: {
+        resume: `Bob Davis — Full-Stack Python & React Developer
+5 years building web applications with Python, FastAPI, and Django backends coupled with React TypeScript frontends.
+Extensive experience with PostgreSQL and MySQL database schema design and optimization.
+Containerized development environments with Docker. Familiar with basic AWS deployments (EC2, S3).`,
+        job: `Full-Stack Python Engineer
+Looking for a full-stack engineer proficient in Python, FastAPI, Docker, and frontend web development.
+Experience in MySQL or PostgreSQL and Redis is a major plus.`,
+        skills: "Python, FastAPI, Docker, MySQL, Redis, React"
+      },
+      junior: {
+        resume: `Charlie Brown — Junior Software Developer
+Recent graduate with basic computer science foundation. Built academic projects in Java and basic HTML/CSS.
+Passionate about software architecture and eager to learn backend development and cloud computing.`,
+        job: `Senior Distributed Systems Architect
+Must possess 8+ years experience architecting high-scale distributed systems in Python, Go, or C++.
+Expert-level knowledge of AWS, Kubernetes, Redis caching, gRPC, and Kafka distributed streaming.`,
+        skills: "Python, AWS, Kubernetes, Redis, Kafka, gRPC"
+      }
+    };
+
+    let activeUploadedFile = null;
+    let authAccessToken = null;
+
+    // Load initial preset on startup
+    window.addEventListener('DOMContentLoaded', () => {
+      loadPreset('cloud');
+      ensureAuthSession();
+    });
+
+    function switchMode(mode) {
+      document.getElementById('tab-text').classList.toggle('active', mode === 'text');
+      document.getElementById('tab-file').classList.toggle('active', mode === 'file');
+      document.getElementById('text-input-section').style.display = mode === 'text' ? 'block' : 'none';
+      document.getElementById('file-input-section').style.display = mode === 'file' ? 'block' : 'none';
+    }
+
+    function loadPreset(key) {
+      const p = PRESETS[key];
+      if (!p) return;
+      document.getElementById('resume-text').value = p.resume;
+      document.getElementById('job-desc').value = p.job;
+      document.getElementById('job-skills').value = p.skills;
+      switchMode('text');
+    }
+
+    function handleFileSelect(input) {
+      if (input.files && input.files[0]) {
+        activeUploadedFile = input.files[0];
+        document.getElementById('file-label').textContent = `Selected: ${activeUploadedFile.name} (${(activeUploadedFile.size / 1024).toFixed(1)} KB)`;
+      }
+    }
+
+    // Automatically manage user authentication session
+    async function ensureAuthSession() {
+      if (authAccessToken) return authAccessToken;
+      try {
+        const email = `ui_guest_${Math.random().toString(36).substring(2, 8)}@example.com`;
+        const res = await fetch('/api/v1/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            password: 'DemoPassword123!',
+            full_name: 'Interactive UI Candidate'
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          authAccessToken = data.tokens.access_token;
+          return authAccessToken;
+        }
+      } catch (err) {
+        console.warn('Auth session registration notice:', err);
+      }
+      return null;
+    }
+
+    // Run ML Analysis
+    async function runAnalysis() {
+      const btn = document.getElementById('analyze-btn');
+      const spinner = document.getElementById('btn-spinner');
+      const btnText = document.getElementById('btn-text');
+
+      btn.disabled = true;
+      spinner.style.display = 'inline-block';
+      btnText.textContent = 'Computing ML Fit...';
+
+      try {
+        const token = await ensureAuthSession();
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        let resumeText = document.getElementById('resume-text').value;
+        const jobDesc = document.getElementById('job-desc').value;
+        const skillsRaw = document.getElementById('job-skills').value;
+        const jobSkills = skillsRaw.split(',').map(s => s.trim()).filter(Boolean);
+
+        // If file mode, upload file first
+        if (document.getElementById('tab-file').classList.contains('active') && activeUploadedFile) {
+          btnText.textContent = 'Extracting Document...';
+          const formData = new FormData();
+          formData.append('file', activeUploadedFile);
+          
+          const uploadRes = await fetch('/api/v1/documents/upload', {
+            method: 'POST',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            body: formData
+          });
+
+          if (uploadRes.ok) {
+            const uploadData = await uploadRes.json();
+            // Automatically trigger RAG index on uploaded doc
+            fetch(`/api/v1/rag/index/${uploadData.id}`, {
+              method: 'POST',
+              headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+            }).catch(() => {});
+
+            // Use analysis with document_id
+            const mlRes = await fetch('/api/v1/ml/analyze', {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({
+                document_id: uploadData.id,
+                job_description: jobDesc,
+                job_skills: jobSkills
+              })
+            });
+            const mlData = await mlRes.json();
+            renderResults(mlData, resumeText || activeUploadedFile.name);
+            return;
+          }
+        }
+
+        // Standard text analysis
+        const mlRes = await fetch('/api/v1/ml/analyze', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            resume_text: resumeText,
+            job_description: jobDesc,
+            job_skills: jobSkills
+          })
+        });
+
+        if (!mlRes.ok) {
+          const err = await mlRes.json();
+          alert('Analysis Error: ' + (err.error ? err.error.message : 'Failed to analyze'));
+          return;
+        }
+
+        const mlData = await mlRes.json();
+        renderResults(mlData, resumeText);
+
+      } catch (err) {
+        console.error('Error running analysis:', err);
+        alert('An unexpected error occurred during analysis.');
+      } finally {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        btnText.textContent = 'Analyze Fit & Readiness';
+      }
+    }
+
+    function renderResults(data, resumeSnippet) {
+      const score = Math.round(data.compatibility_score || 0);
+      document.getElementById('score-text').textContent = score + '%';
+
+      // Update radial circle (283 is circumference for r=45)
+      const offset = 283 - (283 * score) / 100;
+      const circle = document.getElementById('score-circle');
+      circle.style.strokeDashoffset = offset;
+
+      if (score >= 80) {
+        circle.style.stroke = 'var(--success)';
+        document.getElementById('verdict-title').textContent = 'Strong Match';
+        document.getElementById('verdict-desc').textContent = 'Excellent candidate fit! Technical requirements align closely with the role.';
+        document.getElementById('result-status-badge').className = 'badge green';
+        document.getElementById('result-status-badge').textContent = 'Highly Ready';
+      } else if (score >= 50) {
+        circle.style.stroke = 'var(--warning)';
+        document.getElementById('verdict-title').textContent = 'Moderate Match';
+        document.getElementById('verdict-desc').textContent = 'Good foundational skills with actionable gaps to bridge before applying.';
+        document.getElementById('result-status-badge').className = 'badge purple';
+        document.getElementById('result-status-badge').textContent = 'Growth Candidate';
+      } else {
+        circle.style.stroke = 'var(--danger)';
+        document.getElementById('verdict-title').textContent = 'Significant Upskilling Needed';
+        document.getElementById('verdict-desc').textContent = 'Several required competencies are missing from the resume profile.';
+        document.getElementById('result-status-badge').className = 'badge';
+        document.getElementById('result-status-badge').textContent = 'Gap Identified';
+      }
+
+      document.getElementById('model-badge').textContent = `Model: ${data.model_version || 'v1.0.0'}`;
+      document.getElementById('latency-badge').textContent = `Latency: ${data.latency_ms || 15} ms`;
+
+      // Render Matched Skills
+      const matchedContainer = document.getElementById('matched-skills-container');
+      matchedContainer.innerHTML = '';
+      const matched = data.matched_skills || [];
+      document.getElementById('matched-count').textContent = matched.length;
+
+      if (matched.length > 0) {
+        matched.forEach(sk => {
+          const pill = document.createElement('span');
+          pill.className = 'skill-pill matched';
+          pill.innerHTML = `✓ ${sk}`;
+          matchedContainer.appendChild(pill);
+        });
+      } else {
+        matchedContainer.innerHTML = '<span style="color: var(--text-dim); font-size: 0.85rem;">No direct matching skills found in description.</span>';
+      }
+
+      // Render Missing Skills Gaps
+      const gapContainer = document.getElementById('missing-skills-container');
+      gapContainer.innerHTML = '';
+      const gaps = data.missing_skills || [];
+      document.getElementById('gap-count').textContent = gaps.length;
+
+      if (gaps.length > 0) {
+        gaps.forEach(g => {
+          const pill = document.createElement('span');
+          pill.className = 'skill-pill gap';
+          const name = typeof g === 'string' ? g : g.skill;
+          const imp = typeof g === 'object' && g.importance ? g.importance : 'medium';
+          pill.innerHTML = `▲ ${name} <span class="gap-priority">${imp}</span>`;
+          gapContainer.appendChild(pill);
+        });
+      } else {
+        gapContainer.innerHTML = '<span style="color: var(--success); font-size: 0.85rem;">Zero critical gaps! Full skill overlap identified.</span>';
+      }
+
+      // Show AI Guidance Block
+      const guidanceBox = document.getElementById('ai-guidance-box');
+      guidanceBox.style.display = 'block';
+
+      const summaryText = score >= 75
+        ? `Candidate demonstrates high readiness. Highlight hands-on experience with ${matched.slice(0, 3).join(', ')} prominently during phone screens.`
+        : `To maximize readiness for this role, focus technical preparation on bridging ${gaps.slice(0, 3).map(g => typeof g === 'string' ? g : g.skill).join(', ')}.`;
+
+      document.getElementById('guidance-summary').textContent = summaryText;
+
+      const bulletsContainer = document.getElementById('guidance-bullets');
+      bulletsContainer.innerHTML = `
+        <li><strong>Interview Preparation:</strong> Prepare behavioral examples demonstrating problem-solving in production environments.</li>
+        <li><strong>Resume Refinement:</strong> Quantify engineering impact using metrics (e.g. latency reductions, uptime percentages).</li>
+        <li><strong>Target Alignment:</strong> Emphasize experience with modern distributed architectures.</li>
+      `;
+    }
+
+    // Ask RAG Semantic Question
+    async function askRAG() {
+      const query = document.getElementById('rag-query-input').value.trim();
+      if (!query) return;
+
+      const container = document.getElementById('rag-response-container');
+      container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 0.5rem 0;">Searching document intelligence...</div>';
+
+      try {
+        const token = await ensureAuthSession();
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch('/api/v1/rag/query', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ question: query, top_k: 2 })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          let citationsHtml = '';
+          if (data.citations && data.citations.length > 0) {
+            citationsHtml = data.citations.map(c => `
+              <div class="citation-card">
+                <div class="citation-header">
+                  <span>📄 ${c.filename || 'Source Document'} (Chunk ${c.chunk_index})</span>
+                  <span>Match: ${(c.relevance_score * 100).toFixed(0)}%</span>
+                </div>
+                <div class="citation-text">"${c.text_snippet}"</div>
+              </div>
+            `).join('');
+          }
+
+          container.innerHTML = `
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 1rem; margin-top: 0.75rem;">
+              <p style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 0.5rem;"><strong>AI Answer:</strong> ${data.answer}</p>
+              ${citationsHtml}
+            </div>
+          `;
+        } else {
+          container.innerHTML = '<div style="color: var(--warning); font-size: 0.85rem;">Upload a document or index your resume to activate full semantic RAG retrieval.</div>';
+        }
+      } catch (err) {
+        container.innerHTML = '<div style="color: var(--danger); font-size: 0.85rem;">Failed to query RAG intelligence.</div>';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -2,6 +2,7 @@
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
@@ -98,12 +99,34 @@ def create_app() -> FastAPI:
 
     app.include_router(api_v1_router, prefix=settings.API_V1_PREFIX)
 
+    # Mount Interactive Web UI
+    import os
+
+    from starlette.requests import Request
+    from starlette.responses import FileResponse, RedirectResponse
+    from starlette.staticfiles import StaticFiles
+
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
+    if os.path.exists(static_dir):
+        app.mount("/ui", StaticFiles(directory=static_dir, html=True), name="static")
+
+        @app.get("/app", include_in_schema=False)
+        @app.get("/resume-ready", include_in_schema=False)
+        async def ui_redirect() -> RedirectResponse:
+            return RedirectResponse(url="/ui")
+
     @app.get("/", tags=["Root"])
-    async def root_info() -> dict[str, str]:
-        """Root API metadata."""
+    async def root_info(request: Request) -> Any:
+        """Root endpoint: serves interactive UI for browser requests, JSON for API clients."""
+        accept = request.headers.get("accept", "")
+        index_file = os.path.join(static_dir, "index.html")
+        if "text/html" in accept and os.path.exists(index_file):
+            return FileResponse(index_file)
+
         return {
             "name": settings.APP_NAME,
             "version": "0.1.0",
+            "ui": "/ui",
             "docs": "/docs",
             "health": "/health",
             "api_v1": settings.API_V1_PREFIX,
