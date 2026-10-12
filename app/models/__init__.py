@@ -1,6 +1,8 @@
 """Central SQLAlchemy models registry."""
 
 from app.models.application import Application, ApplicationStatus
+from app.models.chunk import DocumentChunk
+from app.models.document import Document, DocumentStatus, DocumentType
 from app.models.job import Job, JobStatus, JobType
 from app.models.profile import Profile
 from app.models.skill import ProficiencyLevel, Skill, UserSkill
@@ -20,4 +22,8 @@ __all__ = [
     "Application",
     "ApplicationStatus",
     "RefreshToken",
+    "Document",
+    "DocumentStatus",
+    "DocumentType",
+    "DocumentChunk",
 ]

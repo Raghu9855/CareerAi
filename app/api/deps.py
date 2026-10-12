@@ -14,6 +14,7 @@ from app.models.user import User, UserRole
 from app.repositories.user_repo import UserRepository
 from app.services.application_service import ApplicationService
 from app.services.auth_service import AuthService
+from app.services.document_service import DocumentService
 from app.services.job_service import JobService
 from app.services.profile_service import ProfileService
 from app.services.skill_service import SkillService
@@ -58,6 +59,11 @@ def get_job_service(session: AsyncSession = Depends(get_db)) -> JobService:
 def get_application_service(session: AsyncSession = Depends(get_db)) -> ApplicationService:
     """Provides ApplicationService instance."""
     return ApplicationService(session)
+
+
+def get_document_service(session: AsyncSession = Depends(get_db)) -> DocumentService:
+    """Provides DocumentService instance."""
+    return DocumentService(session)
 
 
 async def get_current_user(
