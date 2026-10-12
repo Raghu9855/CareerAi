@@ -1,0 +1,72 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: careerai_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=CareerAI
+      - APP_ENV=development
+      - APP_DEBUG=true
+      - DATABASE_URL=mysql+asyncmy://careerai_user:careerai_pass@mysql:3306/careerai_db
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=development-secret-key-32-characters-long-min
+      - STORAGE_BACKEND=local
+      - STORAGE_LOCAL_ROOT=/app/storage/uploads
+      - VECTOR_STORE_TYPE=memory
+      - LLM_PROVIDER=mock
+    volumes:
+      - ./app:/app/app:ro
+      - ./storage:/app/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  mysql:
+    image: mysql:8.0
+    container_name: careerai_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: careerai_db
+      MYSQL_USER: careerai_user
+      MYSQL_PASSWORD: careerai_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "careerai_user", "-pcareerai_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    container_name: careerai_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  mysql_data:
+  redis_data:
