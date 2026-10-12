@@ -80,9 +80,13 @@ def create_app() -> FastAPI:
     app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore[arg-type]
     app.add_exception_handler(Exception, unhandled_exception_handler)
 
-    # Mount Health Check at root and under API v1 prefix
+    # Mount Health Check at root
     app.include_router(health.router)
-    app.include_router(health.router, prefix=settings.API_V1_PREFIX)
+
+    # Mount versioned API routes under /api/v1
+    from app.api.v1.routes import api_v1_router
+
+    app.include_router(api_v1_router, prefix=settings.API_V1_PREFIX)
 
     @app.get("/", tags=["Root"])
     async def root_info() -> dict[str, str]:

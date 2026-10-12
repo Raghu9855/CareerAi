@@ -12,6 +12,7 @@ dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.30.0",
     "pydantic>=2.9.0",
+    "email-validator>=2.0.0",
     "pydantic-settings>=2.5.0",
     "sqlalchemy>=2.0.35",
     "greenlet>=3.0.0",
@@ -45,7 +46,7 @@ dev = [
 ]
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py312"
 exclude = [
     ".git",

@@ -31,9 +31,7 @@ class AppException(Exception):
 class NotFoundError(AppException):
     """Resource was not found."""
 
-    def __init__(
-        self, message: str = "Resource not found", details: dict[str, Any] | None = None
-    ) -> None:
+    def __init__(self, message: str = "Resource not found", details: dict[str, Any] | None = None) -> None:
         super().__init__(
             message=message,
             code="NOT_FOUND",
@@ -45,9 +43,7 @@ class NotFoundError(AppException):
 class UnauthorizedError(AppException):
     """Authentication failed or credentials are missing/invalid."""
 
-    def __init__(
-        self, message: str = "Authentication required", details: dict[str, Any] | None = None
-    ) -> None:
+    def __init__(self, message: str = "Authentication required", details: dict[str, Any] | None = None) -> None:
         super().__init__(
             message=message,
             code="UNAUTHORIZED",
@@ -59,9 +55,7 @@ class UnauthorizedError(AppException):
 class ForbiddenError(AppException):
     """Authenticated user lacks permission to access resource."""
 
-    def __init__(
-        self, message: str = "Access forbidden", details: dict[str, Any] | None = None
-    ) -> None:
+    def __init__(self, message: str = "Access forbidden", details: dict[str, Any] | None = None) -> None:
         super().__init__(
             message=message,
             code="FORBIDDEN",
@@ -73,9 +67,7 @@ class ForbiddenError(AppException):
 class ConflictError(AppException):
     """Resource state conflict, e.g. duplicate email, unique constraint."""
 
-    def __init__(
-        self, message: str = "Resource conflict", details: dict[str, Any] | None = None
-    ) -> None:
+    def __init__(self, message: str = "Resource conflict", details: dict[str, Any] | None = None) -> None:
         super().__init__(
             message=message,
             code="CONFLICT",
@@ -87,9 +79,7 @@ class ConflictError(AppException):
 class ValidationError(AppException):
     """Domain validation error."""
 
-    def __init__(
-        self, message: str = "Validation failed", details: dict[str, Any] | None = None
-    ) -> None:
+    def __init__(self, message: str = "Validation failed", details: dict[str, Any] | None = None) -> None:
         super().__init__(
             message=message,
             code="VALIDATION_ERROR",
@@ -133,9 +123,7 @@ class ServiceUnavailableError(AppException):
 class ExternalServiceError(AppException):
     """Failure communicating with an external third-party service."""
 
-    def __init__(
-        self, message: str = "External service error", details: dict[str, Any] | None = None
-    ) -> None:
+    def __init__(self, message: str = "External service error", details: dict[str, Any] | None = None) -> None:
         super().__init__(
             message=message,
             code="EXTERNAL_SERVICE_ERROR",
@@ -179,9 +167,7 @@ async def app_exception_handler(request: Request, exc: AppException) -> JSONResp
     )
 
 
-async def validation_exception_handler(
-    request: Request, exc: RequestValidationError
-) -> JSONResponse:
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     """Handler for FastAPI Pydantic request validation errors."""
     errors = exc.errors()
     simplified_errors = [
@@ -202,9 +188,7 @@ async def validation_exception_handler(
 
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Handler for unexpected unhandled 500 exceptions."""
-    logger.error(
-        f"Unhandled exception on {request.method} {request.url.path}: {str(exc)}", exc_info=True
-    )
+    logger.error(f"Unhandled exception on {request.method} {request.url.path}: {str(exc)}", exc_info=True)
     return create_error_response(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         code="INTERNAL_SERVER_ERROR",
