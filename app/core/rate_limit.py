@@ -1,4 +1,4 @@
-"""Rate limiting primitives and FastAPI dependency factories."""
+"""Rate limiting primitives and FastAPI dependency factories with Redis and in-memory backends."""
 
 import time
 from collections import defaultdict
@@ -42,6 +42,33 @@ class InMemoryRateLimiter:
 limiter = InMemoryRateLimiter()
 
 
+async def is_rate_limited(key: str, max_requests: int, window_seconds: float = 60.0) -> bool:
+    """Checks rate limit against Redis cluster if configured, falling back to local memory."""
+    from app.core.redis import get_redis_client
+
+    try:
+        redis_client = await get_redis_client()
+        if redis_client:
+            redis_key = f"ratelimit:{key}"
+            now = time.time()
+            cutoff = now - window_seconds
+
+            pipe = redis_client.pipeline()
+            pipe.zremrangebyscore(redis_key, 0, cutoff)
+            pipe.zcard(redis_key)
+            pipe.zadd(redis_key, {str(now): now})
+            pipe.expire(redis_key, int(window_seconds) + 5)
+            results = await pipe.execute()
+
+            request_count = results[1]
+            return bool(request_count >= max_requests)
+    except Exception as exc:
+        logger.debug(f"Redis rate limiter failed ({exc}), falling back to memory limiter")
+
+    # In-memory fallback
+    return not limiter.is_allowed(key, max_requests=max_requests, window_seconds=window_seconds)
+
+
 def rate_limit(requests_per_minute: int) -> Callable[[Request], Coroutine[Any, Any, None]]:
     """FastAPI dependency factory enforcing a rate limit based on client IP."""
 
@@ -50,7 +77,7 @@ def rate_limit(requests_per_minute: int) -> Callable[[Request], Coroutine[Any, A
         endpoint = request.url.path
         key = f"{client_ip}:{endpoint}"
 
-        if not limiter.is_allowed(key, max_requests=requests_per_minute, window_seconds=60.0):
+        if await is_rate_limited(key, max_requests=requests_per_minute, window_seconds=60.0):
             logger.warning(
                 f"Rate limit exceeded for {key} (limit: {requests_per_minute}/min)",
                 extra={"client_ip": client_ip, "endpoint": endpoint},

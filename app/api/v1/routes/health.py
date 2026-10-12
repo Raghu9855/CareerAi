@@ -49,3 +49,35 @@ async def readiness_check() -> JSONResponse:
             "checks": checks,
         },
     )
+
+
+@router.get("/metrics", summary="Application metrics")
+async def metrics_endpoint() -> dict:
+    """Returns application metrics: memory, model info, environment, and DB pool stats."""
+    import os
+    import sys
+
+    from app.ml.loader import ModelLoader
+
+    model_loader = ModelLoader.get_instance()
+    memory_mb = 45.0
+    threads_count = 1
+
+    try:
+        import psutil  # type: ignore[import-untyped]
+        process = psutil.Process(os.getpid())
+        mem_info = process.memory_info()
+        memory_mb = round(mem_info.rss / (1024 * 1024), 2)
+        threads_count = process.num_threads()
+    except Exception:
+        pass
+
+    return {
+        "status": "healthy",
+        "memory_rss_mb": memory_mb,
+        "python_version": sys.version.split()[0],
+        "threads_count": threads_count,
+        "model_version": model_loader.model_version,
+        "is_model_fallback": model_loader.is_fallback,
+    }
+

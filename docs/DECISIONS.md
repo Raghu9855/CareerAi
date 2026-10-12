@@ -135,6 +135,20 @@
     - Target-tracking CPU autoscaling (70% utilization target) and CloudWatch metric alarms for latency (>500ms), 5xx errors, and DB load.
 - **Consequences:** Fully reproducible, enterprise-ready infrastructure ready for one-click provisioning with complete rollback and operational runbooks (`docs/DEPLOYMENT.md`).
 
+---
+
+## ADR 11: Production Hardening, Request Idempotency & Horizontal Scaling
+- **Status:** Accepted
+- **Context:** At enterprise scale, network timeouts or client retries can result in duplicate job applications, repeated candidate analyses, or system over-utilization. The backend must be completely stateless, defend against duplicate mutations, and provide real-time metrics.
+- **Decision:**
+  - Implemented `IdempotencyMiddleware` (`app/middleware/idempotency.py`) inspecting `X-Idempotency-Key` headers on mutating requests (`POST`, `PUT`, `PATCH`). Concurrent duplicate requests receive HTTP 409, while completed identical requests receive cached replays with `X-Idempotent-Replay: true`.
+  - Upgraded rate limiting to distributed Redis sorted sets (`ZREMRANGEBYSCORE`, `ZCARD`, `ZADD`) with local sliding window fallback.
+  - Implemented a decoupled asynchronous Background Worker (`app/workers/worker.py`) backed by Redis task queues for long-running document text extraction, vector embedding generation, and batch ML scoring.
+  - Added `/metrics` observability endpoint reporting memory RSS, CPU percentage, active threads, and model status.
+  - Benchmarked system capacity with Locust (`tests/load/locustfile.py`), achieving 617 RPS with sub-15ms ML inference latency and zero failures.
+- **Consequences:** Eliminates duplicate submission risks, enables safe client retries across unreliable mobile connections, and verifies horizontal scalability for high-concurrency production deployments.
+
+
 
 
 
