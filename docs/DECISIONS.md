@@ -120,5 +120,21 @@
     - Deployment gate: Automatic Docker Buildx build, commit SHA tagging, and push to Amazon ECR upon merge to `main`.
 - **Consequences:** Hermetic builds, minimal vulnerability surface (<150MB compressed), and automated verification before any image reaches staging/production.
 
+---
+
+## ADR 10: AWS Cloud Infrastructure Topology, Secrets & Zero-Downtime Deployment
+- **Status:** Accepted
+- **Context:** Production requirements mandate secure, isolated infrastructure on AWS (VPC, private subnets, security groups, RDS MySQL, private encrypted S3, ALB with HTTPS, Secrets Manager, CloudWatch Alarms) with zero billable resources created unconfirmed.
+- **Decision:**
+  - Codified end-to-end Infrastructure-as-Code via Terraform (`infra/terraform/`):
+    - Multi-AZ VPC with 2 public subnets (ALB & NAT), 2 private subnets (ECS tasks), and 2 database subnets (RDS MySQL).
+    - Least-privilege security groups: ALB accepts 80/443; ECS accepts port 8000 from ALB only; RDS accepts port 3306 exclusively from ECS.
+    - S3 Bucket for private candidate resumes with AES-256 server-side encryption, versioning, and 100% public access block.
+    - AWS Secrets Manager integration: credentials injected directly into Fargate tasks at startup without ever being written to disk or repository.
+    - Zero-downtime rolling deployments (`minimum_healthy_percent = 100`, `maximum_percent = 200`) preceded by safe one-shot Alembic migration tasks.
+    - Target-tracking CPU autoscaling (70% utilization target) and CloudWatch metric alarms for latency (>500ms), 5xx errors, and DB load.
+- **Consequences:** Fully reproducible, enterprise-ready infrastructure ready for one-click provisioning with complete rollback and operational runbooks (`docs/DEPLOYMENT.md`).
+
+
 
 
