@@ -65,6 +65,7 @@ class Settings(BaseSettings):
     # LLM Settings
     LLM_PROVIDER: str = "mock"  # "mock" | "openai" | "gemini" | "anthropic"
     LLM_API_KEY: str = ""
+    LLM_BASE_URL: str = "https://api.openai.com/v1"
     LLM_MODEL: str = "gpt-4o-mini"
     LLM_TIMEOUT_SECONDS: int = 30
     LLM_MAX_RETRIES: int = 3

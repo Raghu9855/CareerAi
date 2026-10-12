@@ -56,3 +56,19 @@
   - If the model artifact is missing or unreadable, smoothly engage `HeuristicFallbackModel` (`heuristic-fallback-v1.0`), preventing runtime crashes.
   - Every analysis stores the exact `model_version`, `latency_ms`, matched skills, and ranked skill gaps.
 - **Consequences:** Guarantees zero per-request cold start overhead, graceful degradation, and complete auditability of candidate fit scores.
+
+---
+
+## ADR 6: Provider-Agnostic LLM Client, Resilient Wrapper & Graceful Degradation
+- **Status:** Accepted
+- **Context:** External LLM APIs are subject to latency spikes, rate limits, transient network outages, and financial costs from repeat requests. Failure of an LLM call must never take down the application or break core job intelligence.
+- **Decision:**
+  - Define `LLMClient` protocol decoupling business logic from proprietary SDKs.
+  - Implement `MockLLMClient` with configurable fault injection (timeouts, 429 rate limits, malformed JSON) for automated testing.
+  - Wrap clients in `ResilientLLMClient`:
+    - Exponential backoff with randomized jitter on transient HTTP 429/5xx and timeouts (up to 3 attempts).
+    - Request deduplication: in-flight duplicate calls share the same `asyncio.Future`.
+    - In-memory SHA256 prompt response caching (TTL: 30 minutes).
+    - Structured JSON logging of token usage and latency without logging sensitive document contents.
+  - Graceful degradation: If LLM generation fails or times out, the API gracefully returns the ML compatibility score with `explanation_status="unavailable"` and `degraded=true` rather than an HTTP 500 error.
+- **Consequences:** Eliminates vendor lock-in, shields users from external API outages, minimizes provider costs via deduplication/caching, and maintains 100% test independence from external APIs.
