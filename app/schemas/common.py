@@ -18,6 +18,10 @@ class PaginationParams(BaseModel):
     def offset(self) -> int:
         return (self.page - 1) * self.per_page
 
+    @property
+    def limit(self) -> int:
+        return self.per_page
+
 
 class PaginatedResponse[T](BaseModel):
     """Generic envelope for paginated collections."""

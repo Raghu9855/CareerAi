@@ -8,6 +8,7 @@ from app.api.v1.routes import (
     documents,
     health,
     jobs,
+    ml,
     profiles,
     skills,
     users,
@@ -23,5 +24,6 @@ api_v1_router.include_router(skills.router)
 api_v1_router.include_router(jobs.router)
 api_v1_router.include_router(applications.router)
 api_v1_router.include_router(documents.router)
+api_v1_router.include_router(ml.router)
 
 __all__ = ["api_v1_router"]

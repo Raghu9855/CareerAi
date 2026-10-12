@@ -43,3 +43,16 @@
   - `StorageService` protocol with `LocalStorageService` (development) and `S3StorageService` (production).
   - `VectorStore` protocol with `InMemoryVectorStore` and `ChromaVectorStore`.
 - **Consequences:** Full unit and integration test coverage without external API keys or cloud spend.
+
+---
+
+## ADR 5: ML Compatibility Scoring, Versioning & Graceful Degradation
+- **Status:** Accepted
+- **Context:** The ML compatibility scoring engine needs to execute with low latency (<50ms), be reproducible, recorded with every analysis, and resilient to missing model artifacts without taking down the API service.
+- **Decision:**
+  - Build a multi-feature extractor combining canonical skill taxonomy matching, TF-IDF n-gram cosine similarity, Jaccard overlap, and text length metrics into an 8-dimensional feature vector.
+  - Train a `RandomForestRegressor` on synthetic ground-truth pairings and serialize the bundle artifact (`model.joblib`) with version metadata (`metadata.json`).
+  - Implement a thread-safe `ModelLoader` singleton preloaded once during application lifespan startup.
+  - If the model artifact is missing or unreadable, smoothly engage `HeuristicFallbackModel` (`heuristic-fallback-v1.0`), preventing runtime crashes.
+  - Every analysis stores the exact `model_version`, `latency_ms`, matched skills, and ranked skill gaps.
+- **Consequences:** Guarantees zero per-request cold start overhead, graceful degradation, and complete auditability of candidate fit scores.

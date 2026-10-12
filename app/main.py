@@ -37,6 +37,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Initialize database engine
     get_engine()
 
+    # Preload ML model artifact once at startup
+    from app.ml.loader import ModelLoader
+
+    model_loader = ModelLoader.get_instance()
+    logger.info(f"ML Model loaded: version={model_loader.model_version}, fallback={model_loader.is_fallback}")
+
     yield
 
     # Graceful shutdown

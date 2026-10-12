@@ -1,0 +1,32 @@
+{
+  "model_name": "RandomForestRegressor",
+  "model_version": "v1.0.0-rf-compatibility",
+  "trained_at": "2026-10-12T10:55:29.187252+00:00",
+  "dataset_samples": 133,
+  "features": [
+    "tfidf_cosine_sim",
+    "skill_overlap_ratio",
+    "jaccard_similarity",
+    "candidate_skill_count",
+    "job_skill_count",
+    "matched_skill_count",
+    "log_candidate_words",
+    "log_job_words"
+  ],
+  "metrics": {
+    "test_r2": 0.9927,
+    "test_rmse": 2.6841,
+    "test_mae": 2.1635
+  },
+  "hyperparameters": {
+    "n_estimators": 100,
+    "max_depth": 6,
+    "min_samples_split": 3,
+    "random_state": 42
+  },
+  "limitations": [
+    "TF-IDF similarity and keyword matching can miss deep semantic equivalents not in vocabulary",
+    "Trained predominantly on technical, software, and professional resume/job descriptions in English",
+    "Does not evaluate interpersonal soft skills, cultural match, or verified work samples"
+  ]
+}

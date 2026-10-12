@@ -1,5 +1,6 @@
 """Central SQLAlchemy models registry."""
 
+from app.models.analysis import Analysis
 from app.models.application import Application, ApplicationStatus
 from app.models.chunk import DocumentChunk
 from app.models.document import Document, DocumentStatus, DocumentType
@@ -26,4 +27,5 @@ __all__ = [
     "DocumentStatus",
     "DocumentType",
     "DocumentChunk",
+    "Analysis",
 ]
