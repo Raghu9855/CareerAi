@@ -186,6 +186,7 @@ python scripts/eval_rag.py
 
 ## 📚 Comprehensive Documentation Suite
 
+- 📋 [**Product Requirements Document (PRD)**](PRD.md): Vision, user personas, functional specifications, and roadmap.
 - 🏛️ [**Architecture & System Design**](docs/ARCHITECTURE.md): Component diagrams, layering rules, and scaling strategies.
 - 📡 [**REST API Documentation**](docs/API.md): Detailed endpoint matrix, schemas, and example payloads.
 - 🗄️ [**Database & ERD Reference**](docs/DATABASE.md): Mermaid ER diagram, indexing strategies, and migration history.
