@@ -19,6 +19,8 @@ erDiagram
     jobs ||--o{ analyses : "analyzed against"
     documents ||--o{ analyses : "source of"
     users ||--o{ refresh_tokens : "authenticated by"
+    users ||--o{ webhook_endpoints : "registers"
+    webhook_endpoints ||--o{ webhook_deliveries : "dispatches"
 
     users {
         int id PK
@@ -123,6 +125,35 @@ erDiagram
         datetime expires_at
         boolean is_revoked
     }
+
+    webhook_endpoints {
+        int id PK
+        int user_id FK
+        string url
+        string secret
+        string description
+        string events
+        boolean is_active
+        int failure_count
+        datetime created_at
+        datetime updated_at
+    }
+
+    webhook_deliveries {
+        int id PK
+        int endpoint_id FK
+        string event
+        text payload
+        string status
+        int http_status_code
+        text response_body
+        int attempt_count
+        datetime delivered_at
+        datetime next_retry_at
+        text error_message
+        datetime created_at
+        datetime updated_at
+    }
 ```
 
 ---
@@ -151,6 +182,22 @@ erDiagram
 - `model_version`: Auditable version tag of the active ML model artifact.
 - `llm_explanation` & `interview_prep`: Persisted LLM outputs for caching.
 
+### 2.5 `webhook_endpoints` Table
+- `user_id`: Mandatory tenant foreign key (`ON DELETE CASCADE`).
+- `url`: Destination URL (`VARCHAR(2048)`), duplicate URLs per user prevented.
+- `secret`: Shared HMAC secret for `sha256=` signature verification.
+- `events`: Comma-separated list of subscribed event types or `*` wildcard.
+- `is_active`: Boolean status flag (auto-disabled after 10 consecutive delivery failures).
+- `failure_count`: Counter tracking consecutive delivery failures.
+
+### 2.6 `webhook_deliveries` Table
+- `endpoint_id`: Foreign key pointing to `webhook_endpoints.id` (`ON DELETE CASCADE`).
+- `event`: Dispatched event name (e.g. `application.created`, `application.status_changed`).
+- `payload`: Serialized event payload envelope with event name, data, delivery ID, and ISO timestamp.
+- `status`: Delivery status enum (`pending`, `success`, `failed`, `retrying`).
+- `attempt_count`: Current attempt iteration (capped at 5 attempts before final failure).
+- `next_retry_at`: Scheduled UTC timestamp for the next exponential back-off attempt.
+
 ---
 
 ## 3. Indexing & Query Optimization Strategy
@@ -159,8 +206,12 @@ erDiagram
    - `idx_documents_user_status` on `(user_id, status)`: Accelerates document listings and ready checks.
    - `idx_applications_user_status` on `(user_id, status)`: Optimizes user pipeline view.
    - `idx_chunks_user_doc` on `(user_id, document_id)`: Speeds up vector deletion and chunk retrieval.
+   - `ix_webhook_endpoints_user_id` on `(user_id)`: Rapid lookup of user endpoints and duplicate prevention.
+   - `ix_webhook_deliveries_endpoint_id` on `(endpoint_id)`: Fast retrieval of endpoint delivery audit logs.
 2. **Search & Filter Indexes**:
    - `idx_jobs_status_created` on `(status, created_at)`: Optimizes paginated job searches.
    - `idx_analyses_user_created` on `(user_id, created_at)`: Instant user history retrieval.
+   - `ix_webhook_endpoints_is_active` on `(is_active)`: Instant filtering for active endpoints during event fan-out.
+   - `ix_webhook_deliveries_status` & `event`: Fast polling and metrics on delivery outcomes.
 3. **Soft Delete Filter**:
    - All models inherit `SoftDeleteMixin` providing `is_deleted` and `deleted_at` fields. Repositories automatically apply `WHERE deleted_at IS NULL`.

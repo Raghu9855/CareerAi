@@ -68,6 +68,13 @@ If a request with this key was already completed within the past 24 hours, the c
 | `POST` | `/api/v1/rag/index/{doc_id}` | Chunk, embed, and index document | Yes |
 | `POST` | `/api/v1/rag/query` | Ask semantic questions over documents | Yes |
 | `DELETE`| `/api/v1/rag/documents/{id}`| Delete document vectors and chunks | Yes |
+| `POST` | `/api/v1/webhooks/endpoints` | Register a new webhook endpoint | Yes (Rate limited) |
+| `GET` | `/api/v1/webhooks/endpoints` | List registered webhook endpoints | Yes |
+| `GET` | `/api/v1/webhooks/endpoints/{id}` | Get webhook endpoint details | Yes |
+| `PATCH`| `/api/v1/webhooks/endpoints/{id}` | Update URL, subscribed events, or status | Yes |
+| `DELETE`| `/api/v1/webhooks/endpoints/{id}`| Delete endpoint and cascade delivery logs | Yes |
+| `POST` | `/api/v1/webhooks/endpoints/{id}/test` | Fire synthetic ping event for connectivity check | Yes (Rate limited) |
+| `GET` | `/api/v1/webhooks/endpoints/{id}/deliveries` | Retrieve delivery logs with retry schedules | Yes |
 
 ---
 
@@ -138,3 +145,47 @@ Content-Type: application/json
   "has_answer": true
 }
 ```
+
+### 3.3 Webhook Delivery Payload & Verification
+
+When events occur (`application.created`, `application.status_changed`, `application.withdrawn`, `application.deleted`, or `webhook.test`), CareerAI delivers an HTTP POST request to registered endpoints.
+
+**Headers:**
+```http
+Content-Type: application/json
+User-Agent: CareerAI-Webhook-Dispatcher/1.0
+X-CareerAI-Event: application.status_changed
+X-CareerAI-Delivery-Id: 42
+X-CareerAI-Timestamp: 2026-10-17T12:00:00Z
+X-CareerAI-Signature: sha256=a1b2c3d4e5f6...7890abcdef
+```
+
+**Payload Envelope:**
+```json
+{
+  "event": "application.status_changed",
+  "data": {
+    "application_id": 7,
+    "job_id": 3,
+    "previous_status": "applied",
+    "new_status": "interviewing"
+  },
+  "delivery_id": 42,
+  "timestamp": "2026-10-17T12:00:00.000000Z"
+}
+```
+
+**Signature Verification (Python Example):**
+```python
+import hmac
+import hashlib
+
+def verify_signature(secret: str, raw_body: bytes, expected_signature: str) -> bool:
+    computed = "sha256=" + hmac.new(
+        secret.encode("utf-8"),
+        raw_body,
+        hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(computed, expected_signature)
+```
+
