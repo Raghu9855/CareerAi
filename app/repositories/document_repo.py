@@ -18,13 +18,10 @@ class DocumentRepository(BaseRepository[Document]):
 
     async def get_by_id_and_user(self, document_id: int, user_id: int) -> Document | None:
         """Fetch document by ID strictly verifying tenant user ID."""
-        stmt = (
-            select(Document)
-            .where(
-                Document.id == document_id,
-                Document.user_id == user_id,
-                Document.is_deleted.is_(False),
-            )
+        stmt = select(Document).where(
+            Document.id == document_id,
+            Document.user_id == user_id,
+            Document.is_deleted.is_(False),
         )
         result = await self.session.execute(stmt)
         return result.scalars().first()
@@ -78,11 +75,7 @@ class DocumentRepository(BaseRepository[Document]):
         if error_message is not None:
             update_vals["error_message"] = error_message
 
-        stmt = (
-            update(Document)
-            .where(Document.id == document_id)
-            .values(**update_vals)
-        )
+        stmt = update(Document).where(Document.id == document_id).values(**update_vals)
         await self.session.execute(stmt)
         await self.session.flush()
         return await self.get_by_id(document_id)

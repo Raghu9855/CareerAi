@@ -13,20 +13,32 @@ from app.core.config import get_settings
 def get_llm_client() -> LLMClient:
     """Instantiate and wrap configured LLM client based on application environment."""
     settings = get_settings()
+    provider = settings.LLM_PROVIDER.lower()
 
     inner: LLMClient
-    if settings.LLM_PROVIDER.lower() == "mock" or not settings.LLM_API_KEY:
-        inner = MockLLMClient(model_name=settings.LLM_MODEL)
+    if provider == "mock":
+        inner = MockLLMClient(model_name=settings.resolved_llm_model)
+    elif provider == "ollama":
+        inner = OpenAICompatibleClient(
+            api_key=settings.LLM_API_KEY or "ollama",
+            base_url=settings.resolved_llm_base_url,
+            model=settings.resolved_llm_model,
+            timeout_seconds=settings.LLM_TIMEOUT_SECONDS,
+        )
+    elif not settings.LLM_API_KEY:
+        # Fall back to mock client if API key is not supplied
+        inner = MockLLMClient(model_name=settings.resolved_llm_model)
     else:
         inner = OpenAICompatibleClient(
             api_key=settings.LLM_API_KEY,
-            base_url=settings.LLM_BASE_URL,
-            model=settings.LLM_MODEL,
+            base_url=settings.resolved_llm_base_url,
+            model=settings.resolved_llm_model,
+            timeout_seconds=settings.LLM_TIMEOUT_SECONDS,
         )
 
     return ResilientLLMClient(
         inner_client=inner,
-        max_retries=3,
+        max_retries=settings.LLM_MAX_RETRIES,
         base_delay=0.3,
         max_delay=3.0,
         enable_cache=True,

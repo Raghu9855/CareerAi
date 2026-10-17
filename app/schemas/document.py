@@ -9,6 +9,7 @@ from app.models.document import DocumentStatus, DocumentType
 
 class DocumentResponse(BaseModel):
     """Document metadata and status representation."""
+
     id: int
     user_id: int
     filename: str

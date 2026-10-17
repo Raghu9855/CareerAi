@@ -215,8 +215,26 @@ class AIService:
         )
 
     def _extract_json(self, raw_text: str) -> dict[str, Any]:
-        """Strip markdown fences if present and decode JSON object."""
+        """Strip thinking tags, markdown fences, and preambles to reliably decode JSON object."""
+        import re
+
         text = raw_text.strip()
+        # Strip reasoning model thinking tags if present (e.g. DeepSeek/Qwen)
+        text = re.sub(r"<think>[\s\S]*?</think>", "", text).strip()
+
+        # Locate outer JSON curly braces
+        start = text.find("{")
+        end = text.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            candidate = text[start : end + 1]
+            try:
+                parsed = json.loads(candidate)
+                if isinstance(parsed, dict):
+                    return parsed
+            except json.JSONDecodeError:
+                pass
+
+        # Fallback to markdown fence stripping
         if text.startswith("```json"):
             text = text[7:]
         elif text.startswith("```"):
@@ -224,6 +242,7 @@ class AIService:
         if text.endswith("```"):
             text = text[:-3]
         text = text.strip()
+
         result = json.loads(text)
         if not isinstance(result, dict):
             raise ValueError("Expected JSON object, got non-dict JSON")

@@ -203,8 +203,7 @@ SEED_DATA: list[dict[str, Any]] = [
             "communication, CRM management, and presentation skills."
         ),
         "job": (
-            "Full Stack Software Developer. Requirements: React, TypeScript, Node.js, GraphQL, PostgreSQL, "
-            "and Docker."
+            "Full Stack Software Developer. Requirements: React, TypeScript, Node.js, GraphQL, PostgreSQL, and Docker."
         ),
         "score": 22.0,
     },
@@ -236,9 +235,7 @@ SEED_DATA: list[dict[str, Any]] = [
             "Real Estate Agent with experience in residential property sales, negotiation, open houses, and "
             "local market market analysis."
         ),
-        "job": (
-            "Cloud Infrastructure Engineer. AWS, Kubernetes, Terraform, Docker, and CI/CD pipelines."
-        ),
+        "job": ("Cloud Infrastructure Engineer. AWS, Kubernetes, Terraform, Docker, and CI/CD pipelines."),
         "score": 8.0,
     },
 ]

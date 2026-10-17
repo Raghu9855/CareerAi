@@ -47,8 +47,7 @@ class CareerAIUser(HttpUser):
                 "Python, FastAPI, MySQL, Redis, Docker, and AWS microservices."
             ),
             "job_description": (
-                "Looking for a Senior Backend Engineer proficient in Python, "
-                "FastAPI, MySQL, and Docker architecture."
+                "Looking for a Senior Backend Engineer proficient in Python, FastAPI, MySQL, and Docker architecture."
             ),
             "job_skills": ["Python", "FastAPI", "MySQL", "Docker"],
         }

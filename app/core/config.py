@@ -63,7 +63,7 @@ class Settings(BaseSettings):
     DEFAULT_MODEL_VERSION: str = "v1.0.0"
 
     # LLM Settings
-    LLM_PROVIDER: str = "mock"  # "mock" | "openai" | "gemini" | "anthropic"
+    LLM_PROVIDER: str = "mock"  # "mock" | "openai" | "groq" | "ollama" | "gemini" | "openrouter"
     LLM_API_KEY: str = ""
     LLM_BASE_URL: str = "https://api.openai.com/v1"
     LLM_MODEL: str = "gpt-4o-mini"
@@ -80,6 +80,36 @@ class Settings(BaseSettings):
     # Rate Limiting
     RATE_LIMIT_AUTH_PER_MINUTE: int = 20
     RATE_LIMIT_AI_PER_MINUTE: int = 10
+
+    @property
+    def resolved_llm_base_url(self) -> str:
+        """Resolve LLM base URL based on provider if not explicitly customized."""
+        provider = self.LLM_PROVIDER.lower()
+        if self.LLM_BASE_URL and self.LLM_BASE_URL != "https://api.openai.com/v1":
+            return self.LLM_BASE_URL.rstrip("/")
+        if provider == "groq":
+            return "https://api.groq.com/openai/v1"
+        if provider == "ollama":
+            return "http://localhost:11434/v1"
+        if provider == "gemini":
+            return "https://generativelanguage.googleapis.com/v1beta/openai"
+        if provider == "openrouter":
+            return "https://openrouter.ai/api/v1"
+        return "https://api.openai.com/v1"
+
+    @property
+    def resolved_llm_model(self) -> str:
+        """Resolve sensible default model based on provider if not explicitly overridden."""
+        provider = self.LLM_PROVIDER.lower()
+        if self.LLM_MODEL and self.LLM_MODEL != "gpt-4o-mini":
+            return self.LLM_MODEL
+        if provider == "groq":
+            return "llama-3.3-70b-versatile"
+        if provider == "ollama":
+            return "llama3"
+        if provider == "gemini":
+            return "gemini-1.5-flash"
+        return self.LLM_MODEL or "gpt-4o-mini"
 
     @property
     def is_production(self) -> bool:

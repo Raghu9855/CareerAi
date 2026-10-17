@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 class DocumentStatus(enum.StrEnum):
     """Document processing pipeline states."""
+
     UPLOADED = "uploaded"
     PROCESSING = "processing"
     READY = "ready"
@@ -23,6 +24,7 @@ class DocumentStatus(enum.StrEnum):
 
 class DocumentType(enum.StrEnum):
     """Category classification of uploaded career documents."""
+
     RESUME = "resume"
     COVER_LETTER = "cover_letter"
     CAREER_NOTE = "career_note"

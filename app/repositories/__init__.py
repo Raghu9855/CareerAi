@@ -9,6 +9,7 @@ from app.repositories.profile_repo import ProfileRepository
 from app.repositories.skill_repo import SkillRepository, UserSkillRepository
 from app.repositories.token_repo import TokenRepository
 from app.repositories.user_repo import UserRepository
+from app.repositories.webhook_repo import WebhookDeliveryRepository, WebhookEndpointRepository
 
 __all__ = [
     "BaseRepository",
@@ -21,4 +22,6 @@ __all__ = [
     "TokenRepository",
     "DocumentRepository",
     "AnalysisRepository",
+    "WebhookEndpointRepository",
+    "WebhookDeliveryRepository",
 ]

@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.models.profile import Profile
     from app.models.skill import UserSkill
     from app.models.token import RefreshToken
+    from app.models.webhook import WebhookEndpoint
 
 
 class UserRole(enum.StrEnum):
@@ -61,6 +62,12 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
         "RefreshToken",
         back_populates="user",
         cascade="all, delete-orphan",
+    )
+    webhook_endpoints: Mapped[list["WebhookEndpoint"]] = relationship(
+        "WebhookEndpoint",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="noload",
     )
 
     def __repr__(self) -> str:

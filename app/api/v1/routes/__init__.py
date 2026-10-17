@@ -14,6 +14,7 @@ from app.api.v1.routes import (
     rag,
     skills,
     users,
+    webhooks,
 )
 
 api_v1_router = APIRouter()
@@ -29,5 +30,6 @@ api_v1_router.include_router(documents.router)
 api_v1_router.include_router(ml.router)
 api_v1_router.include_router(ai.router)
 api_v1_router.include_router(rag.router)
+api_v1_router.include_router(webhooks.router)
 
 __all__ = ["api_v1_router"]

@@ -65,6 +65,7 @@ async def metrics_endpoint() -> dict:
 
     try:
         import psutil  # type: ignore[import-untyped]
+
         process = psutil.Process(os.getpid())
         mem_info = process.memory_info()
         memory_mb = round(mem_info.rss / (1024 * 1024), 2)
@@ -80,4 +81,3 @@ async def metrics_endpoint() -> dict:
         "model_version": model_loader.model_version,
         "is_model_fallback": model_loader.is_fallback,
     }
-

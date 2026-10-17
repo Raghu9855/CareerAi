@@ -32,10 +32,7 @@ class AnalysisRepository(BaseRepository[Analysis]):
         result = await self.session.execute(stmt)
         items = result.scalars().all()
 
-        count_stmt = (
-            select(func.count(Analysis.id))
-            .where(Analysis.user_id == user_id, Analysis.is_deleted.is_(False))
-        )
+        count_stmt = select(func.count(Analysis.id)).where(Analysis.user_id == user_id, Analysis.is_deleted.is_(False))
         total = (await self.session.execute(count_stmt)).scalar_one()
 
         return items, total

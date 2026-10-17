@@ -60,6 +60,8 @@ class BackgroundWorker:
             await self._handle_rag_indexing(payload)
         elif job_type == "batch_ml_inference":
             await self._handle_batch_ml(payload)
+        elif job_type == "dispatch_webhook":
+            await self._handle_webhook_retry(payload)
         else:
             logger.warning(f"Unknown background job type: {job_type}")
 
@@ -74,6 +76,25 @@ class BackgroundWorker:
     async def _handle_batch_ml(self, payload: dict[str, Any]) -> None:
         user_id = payload.get("user_id")
         logger.info(f"Successfully executed batch compatibility inference for candidate {user_id}")
+
+    async def _handle_webhook_retry(self, payload: dict[str, Any]) -> None:
+        """Re-attempt a failed webhook delivery by delivery_id."""
+        delivery_id = payload.get("delivery_id")
+        if not delivery_id:
+            logger.warning("dispatch_webhook job missing delivery_id — skipping")
+            return
+
+        try:
+            from app.db.session import get_session_factory
+            from app.services.webhook_service import WebhookService
+
+            session_factory = get_session_factory()
+            async with session_factory() as session:
+                service = WebhookService(session)
+                delivery = await service.retry_delivery(int(delivery_id))
+                logger.info(f"Webhook retry delivery_id={delivery_id} status={delivery.status}")
+        except Exception as exc:
+            logger.error(f"Webhook retry handler error for delivery_id={delivery_id}: {exc}")
 
     def stop(self) -> None:
         """Signal worker to terminate gracefully."""

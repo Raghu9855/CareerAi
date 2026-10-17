@@ -21,8 +21,7 @@ router = APIRouter(prefix="/ml", tags=["Machine Learning"])
     dependencies=[Depends(rate_limit(requests_per_minute=30))],
     summary="Compute Job Fit Compatibility & Skill-Gap Analysis",
     description=(
-        "Extracts skills, computes TF-IDF semantic similarities, and predicts fit score (0-100) using "
-        "trained ML model."
+        "Extracts skills, computes TF-IDF semantic similarities, and predicts fit score (0-100) using trained ML model."
     ),
 )
 async def analyze_compatibility(

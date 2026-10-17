@@ -34,9 +34,7 @@ class AnalyzeRequest(BaseModel):
                 "Must provide at least one candidate source: 'document_id', 'resume_text', or 'use_profile=True'."
             )
         if not has_job:
-            raise ValueError(
-                "Must provide at least one job source: 'job_id' or 'job_description'."
-            )
+            raise ValueError("Must provide at least one job source: 'job_id' or 'job_description'.")
         return self
 
 

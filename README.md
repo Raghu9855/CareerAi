@@ -4,7 +4,7 @@
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com)
 [![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0%20(async)-red.svg)](https://www.sqlalchemy.org/)
-[![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen.svg)]()
+[![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen.svg)]()
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Types: mypy](https://img.shields.io/badge/types-mypy-blue.svg)](https://mypy-lang.org/)
 
@@ -74,6 +74,11 @@ graph TD
   - Redis distributed rate limiting and request idempotency via `X-Idempotency-Key`.
   - OWASP Top 10 security headers and structured JSON access logs with request IDs.
   - Background task queue (`app/workers/worker.py`) for heavy async jobs.
+- **🔔 Asynchronous Webhook Notifications (Phase 12)**:
+  - ATS integrators register HTTPS endpoints and subscribe to application lifecycle events (`application.created`, `application.status_changed`, `application.withdrawn`, `application.deleted`).
+  - Payloads are signed with HMAC-SHA256 (`sha256=` prefix, GitHub convention) using a per-endpoint shared secret.
+  - Delivery audit trail with attempt count, HTTP status, and response body. Failed deliveries retry up to 5 times on an exponential back-off schedule (30s → 5m → 30m → 2h → 6h).
+  - Endpoints are auto-disabled after 10 consecutive failures. Test-ping endpoint for connectivity validation.
 
 ---
 
@@ -86,7 +91,7 @@ graph TD
 | **Caching & Queues**| Redis 7, redis-py async |
 | **Machine Learning**| scikit-learn, NumPy, TF-IDF vectorizer, Joblib |
 | **LLM & RAG** | Provider-agnostic `LLMClient`, VectorStore Protocol, Mock & OpenAI implementations |
-| **Testing & Quality**| pytest, pytest-asyncio, pytest-cov (84% coverage), HTTPX, Ruff, Mypy |
+| **Testing & Quality**| pytest, pytest-asyncio, pytest-cov (~89% coverage), HTTPX, Ruff, Mypy |
 | **Infrastructure** | Docker, Docker Compose, Terraform, AWS (ECS Fargate, RDS, S3, ALB, Secrets Manager) |
 
 ---
@@ -143,7 +148,7 @@ graph TD
 
 ## 🧪 Running the Test Suite
 
-CareerAI maintains an extensive test suite (123+ automated tests) achieving **84% code coverage** across all layers:
+CareerAI maintains an extensive test suite (159+ automated tests) achieving **~89% code coverage** across all layers:
 
 ```bash
 # Run all tests with coverage report
@@ -205,9 +210,9 @@ python scripts/eval_rag.py
 
 ## 🔮 Future Improvements
 
-- **Asynchronous Webhooks**: Notify candidate ATS integrations when application status updates occur.
 - **Multilingual Resume Extraction**: Expand the skill taxonomy and training pipeline across non-English CV formats.
 - **Qdrant Vector Store Integration**: Plug in distributed Qdrant vector cluster for enterprise-scale multi-million vector datasets.
+- **Webhook HMAC Replay Protection**: Add `X-CareerAI-Timestamp` and a ±5 minute replay window to protect against recorded-and-replay attacks.
 
 ---
 

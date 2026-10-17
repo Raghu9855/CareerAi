@@ -166,9 +166,7 @@ class RAGPipeline:
             fname = meta.get("original_filename", meta.get("filename", "document"))
             c_idx = meta.get("chunk_index", 0)
 
-            context_blocks.append(
-                f"[Source: {fname} (Document ID: {doc_id}, Chunk: {c_idx})]:\n{hit.text}"
-            )
+            context_blocks.append(f"[Source: {fname} (Document ID: {doc_id}, Chunk: {c_idx})]:\n{hit.text}")
             citations.append(
                 SourceCitation(
                     document_id=doc_id,
@@ -194,11 +192,7 @@ class RAGPipeline:
             ),
             LLMMessage(
                 role="user",
-                content=(
-                    f"Context Excerpts:\n{full_context}\n\n"
-                    f"User Question: {question}\n\n"
-                    "Answer:"
-                ),
+                content=(f"Context Excerpts:\n{full_context}\n\nUser Question: {question}\n\nAnswer:"),
             ),
         ]
 
@@ -209,9 +203,7 @@ class RAGPipeline:
         except Exception as exc:
             logger.error(f"LLM synthesis failed in RAG pipeline: {exc}")
             # Gracefully provide context snippet attribution if LLM fails
-            answer_text = (
-                f"Based on your documents, the most relevant section states: '{search_hits[0].text[:300]}...'"
-            )
+            answer_text = f"Based on your documents, the most relevant section states: '{search_hits[0].text[:300]}...'"
 
         total_latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
 

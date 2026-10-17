@@ -42,8 +42,7 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
                         "error": {
                             "code": "CONCURRENT_REQUEST",
                             "message": (
-                                "A request with this idempotency key is currently processing. "
-                                "Please retry shortly."
+                                "A request with this idempotency key is currently processing. Please retry shortly."
                             ),
                         },
                     },
@@ -79,8 +78,7 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
                     "body": full_body,
                     "media_type": response.media_type,
                     "headers": {
-                        k: v for k, v in response.headers.items()
-                        if k.lower() in ("content-type", "content-length")
+                        k: v for k, v in response.headers.items() if k.lower() in ("content-type", "content-length")
                     },
                 }
 

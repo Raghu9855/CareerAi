@@ -9,6 +9,7 @@ from app.models.profile import Profile
 from app.models.skill import ProficiencyLevel, Skill, UserSkill
 from app.models.token import RefreshToken
 from app.models.user import User, UserRole
+from app.models.webhook import WebhookDelivery, WebhookDeliveryStatus, WebhookEndpoint, WebhookEvent
 
 __all__ = [
     "User",
@@ -28,4 +29,8 @@ __all__ = [
     "DocumentType",
     "DocumentChunk",
     "Analysis",
+    "WebhookEndpoint",
+    "WebhookDelivery",
+    "WebhookEvent",
+    "WebhookDeliveryStatus",
 ]

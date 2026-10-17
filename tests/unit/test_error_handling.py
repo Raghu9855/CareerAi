@@ -25,6 +25,7 @@ def test_create_error_response_envelope() -> None:
     )
     assert resp.status_code == 400
     import json
+
     data = json.loads(resp.body)
     assert data["success"] is False
     assert data["request_id"] == "req-abc-123"
@@ -41,6 +42,7 @@ async def test_app_exception_handler() -> None:
     resp = await app_exception_handler(req, exc)
     assert resp.status_code == 404
     import json
+
     data = json.loads(resp.body)
     assert data["error"]["code"] == "NOT_FOUND"
     assert data["error"]["details"]["id"] == 42
@@ -55,6 +57,7 @@ async def test_validation_exception_handler() -> None:
     resp = await validation_exception_handler(req, exc)
     assert resp.status_code == 422
     import json
+
     data = json.loads(resp.body)
     assert data["error"]["code"] == "VALIDATION_ERROR"
     assert len(data["error"]["details"]["validation_errors"]) == 1
@@ -71,6 +74,7 @@ async def test_unhandled_exception_handler() -> None:
     resp = await unhandled_exception_handler(req, exc)
     assert resp.status_code == 500
     import json
+
     data = json.loads(resp.body)
     assert data["error"]["code"] == "INTERNAL_SERVER_ERROR"
     assert "Database socket dropped" not in data["error"]["message"]

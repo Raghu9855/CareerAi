@@ -27,9 +27,7 @@ async def ml_test_user(db_session: AsyncSession) -> User:
 
 
 @pytest.mark.asyncio
-async def test_ml_service_analyze_with_raw_text(
-    db_session: AsyncSession, ml_test_user: User
-) -> None:
+async def test_ml_service_analyze_with_raw_text(db_session: AsyncSession, ml_test_user: User) -> None:
     """Verify MLService analyze runs with raw text and persists analysis."""
     ml_service = MLService(db_session)
     req = AnalyzeRequest(
@@ -47,9 +45,7 @@ async def test_ml_service_analyze_with_raw_text(
 
 
 @pytest.mark.asyncio
-async def test_ml_service_document_not_found(
-    db_session: AsyncSession, ml_test_user: User
-) -> None:
+async def test_ml_service_document_not_found(db_session: AsyncSession, ml_test_user: User) -> None:
     """Verify non-existent document ID raises NotFoundError."""
     ml_service = MLService(db_session)
     req = AnalyzeRequest(document_id=99999, job_description="Job desc")
@@ -59,9 +55,7 @@ async def test_ml_service_document_not_found(
 
 
 @pytest.mark.asyncio
-async def test_ml_service_document_cross_user_isolation(
-    db_session: AsyncSession, ml_test_user: User
-) -> None:
+async def test_ml_service_document_cross_user_isolation(db_session: AsyncSession, ml_test_user: User) -> None:
     """Verify document belonging to user 2 cannot be used by user 1."""
     # Create document for another user
     doc = Document(
@@ -111,9 +105,7 @@ async def test_ml_service_document_not_ready_raises_validation_error(
 
 
 @pytest.mark.asyncio
-async def test_ml_service_job_not_found(
-    db_session: AsyncSession, ml_test_user: User
-) -> None:
+async def test_ml_service_job_not_found(db_session: AsyncSession, ml_test_user: User) -> None:
     """Verify non-existent job ID raises NotFoundError."""
     ml_service = MLService(db_session)
     req = AnalyzeRequest(resume_text="Candidate text", job_id=99999)

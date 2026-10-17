@@ -64,6 +64,7 @@ class CacheService:
 
         # Local cache fallback
         import time
+
         if key in self._local_cache:
             val, expiry = self._local_cache[key]
             if time.time() < expiry:
@@ -82,6 +83,7 @@ class CacheService:
             logger.warning(f"Redis set failed for key {key}: {exc}")
 
         import time
+
         self._local_cache[key] = (serialized, time.time() + ttl_seconds)
         return True
 

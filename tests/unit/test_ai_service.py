@@ -68,9 +68,7 @@ async def test_ai_service_explain_analysis_happy_path(
 
 
 @pytest.mark.asyncio
-async def test_ai_service_cross_user_isolation(
-    db_session: AsyncSession, sample_analysis: Analysis
-) -> None:
+async def test_ai_service_cross_user_isolation(db_session: AsyncSession, sample_analysis: Analysis) -> None:
     """Verify other user cannot request explanation for foreign analysis."""
     mock_llm = MockLLMClient()
     ai_service = AIService(db_session, llm_client=mock_llm)
@@ -103,9 +101,7 @@ async def test_ai_service_graceful_degradation_when_llm_fails(
 
     ai_service = AIService(db_session, llm_client=faulty_llm)
 
-    res = await ai_service.explain_analysis(
-        analysis_id=sample_analysis.id, user_id=sample_user.id, force_refresh=True
-    )
+    res = await ai_service.explain_analysis(analysis_id=sample_analysis.id, user_id=sample_user.id, force_refresh=True)
     assert res.compatibility_score == 88.5
     assert res.explanation_status == "unavailable"
     assert res.degraded is True

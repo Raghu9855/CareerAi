@@ -148,7 +148,18 @@
   - Benchmarked system capacity with Locust (`tests/load/locustfile.py`), achieving 617 RPS with sub-15ms ML inference latency and zero failures.
 - **Consequences:** Eliminates duplicate submission risks, enables safe client retries across unreliable mobile connections, and verifies horizontal scalability for high-concurrency production deployments.
 
+---
 
-
-
+## ADR 12: Asynchronous Webhook Notification System
+- **Status:** Accepted
+- **Context:** ATS (Applicant Tracking System) integrations and third-party partners need real-time notification when a candidate's application status changes (e.g., `applied → interviewing → offered`). Polling the API is inefficient and introduces unbounded latency. Push-based webhooks are the industry standard (GitHub, Stripe, Shopify).
+- **Decision:**
+  - **WebhookEndpoint model** (`app/models/webhook.py`): Stores per-user registrations with target URL, HMAC-SHA256 shared secret, event subscription filter (specific events or `*` for all), active state, and a failure counter.
+  - **WebhookDelivery model**: Immutable audit trail of every dispatch attempt recording HTTP status, response body, attempt count, error message, and next retry datetime.
+  - **Dispatcher module** (`app/core/webhook_dispatcher.py`): Pure stateless module with `compute_signature()` (GitHub-convention `sha256=` prefix), `dispatch_once()` using `httpx.AsyncClient`, and an exponential back-off retry schedule (30s, 5m, 30m, 2h, 6h).
+  - **WebhookService** (`app/services/webhook_service.py`): Orchestrates registration (duplicate URL detection, auto-generated secrets), CRUD, delivery, test pings, and retry support. Auto-disables endpoints after 10 consecutive failures to prevent flooding.
+  - **ApplicationService integration**: `apply_to_job`, `update_application`, `withdraw_application`, and `delete_application` fire webhook events (`application.created`, `application.status_changed`, `application.withdrawn`, `application.deleted`) inline but with full exception swallowing — a webhook failure can never break the core API.
+  - **Background worker integration** (`app/workers/worker.py`): Added `dispatch_webhook` job type that the worker picks up from the Redis queue to retry failed deliveries asynchronously.
+  - **REST API** (`/api/v1/webhooks/endpoints`): 7 endpoints — register, list, get, PATCH, delete, test ping, and delivery log — all enforcing strict ownership.
+- **Consequences:** ATS integrators receive instant, signed, verifiable push notifications on application state changes. The signing convention is compatible with all major webhook verification libraries. Failed deliveries are retried up to 5 times. Endpoints that consistently fail are auto-disabled, preventing resource waste. The entire system degrades gracefully: webhook failures are always logged but never propagated to API callers.
 

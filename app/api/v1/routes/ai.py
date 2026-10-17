@@ -61,3 +61,38 @@ async def generate_interview_prep(
         analysis_id=analysis_id,
         user_id=current_user.id,
     )
+
+
+@router.get(
+    "/status",
+    summary="Get LLM Provider Status & Engine Configuration",
+    description="Returns active LLM provider (Groq, OpenAI, Ollama, Gemini, or Mock) and resolved model.",
+)
+def get_ai_status() -> dict[str, str | bool]:
+    """Inspect active AI provider, model, and connection mode."""
+    from app.core.config import get_settings
+
+    settings = get_settings()
+    provider = settings.LLM_PROVIDER.lower()
+    is_mock = provider == "mock" or (provider != "ollama" and not settings.LLM_API_KEY)
+
+    provider_label = provider.title()
+    if provider == "groq":
+        provider_label = "Groq (Llama-3.3)"
+    elif provider == "openai":
+        provider_label = "OpenAI"
+    elif provider == "ollama":
+        provider_label = "Ollama (Local)"
+    elif provider == "gemini":
+        provider_label = "Google Gemini"
+    elif is_mock:
+        provider_label = "Mock Engine (Offline)"
+
+    return {
+        "provider": provider,
+        "provider_label": provider_label,
+        "model": settings.resolved_llm_model,
+        "base_url": settings.resolved_llm_base_url,
+        "is_mock": is_mock,
+        "has_api_key": bool(settings.LLM_API_KEY),
+    }

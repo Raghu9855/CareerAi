@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 @dataclass
 class UserFactory:
     """Generates user registration test payloads."""
+
     email: str = field(default_factory=lambda: f"user_{uuid.uuid4().hex[:8]}@example.com")
     password: str = "StrongPass123!"
     full_name: str = "Test Candidate"
@@ -24,6 +25,7 @@ class UserFactory:
 @dataclass
 class JobFactory:
     """Generates job posting test payloads."""
+
     title: str = "Senior Cloud Engineer"
     company: str = "CloudScale Tech"
     description: str = (
@@ -46,6 +48,7 @@ class JobFactory:
 @dataclass
 class ProfileFactory:
     """Generates user profile test payloads."""
+
     headline: str = "Experienced Backend & Cloud Specialist"
     summary: str = "Over 6 years of experience building distributed systems in Python and FastAPI."
     location: str = "New York, NY"

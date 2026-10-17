@@ -64,9 +64,7 @@ async def test_get_current_user_invalid_token_raises_unauthorized(
 
 
 @pytest.mark.asyncio
-async def test_get_current_user_refresh_token_rejected(
-    db_session: AsyncSession, regular_user: User
-) -> None:
+async def test_get_current_user_refresh_token_rejected(db_session: AsyncSession, regular_user: User) -> None:
     """Verify providing a refresh token to access-only endpoint raises UnauthorizedError."""
     refresh_token_raw, _ = create_refresh_token(regular_user.id)
     creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials=refresh_token_raw)
@@ -99,9 +97,7 @@ async def test_get_current_user_inactive_user_rejected(
 
 
 @pytest.mark.asyncio
-async def test_get_current_user_happy_path(
-    db_session: AsyncSession, regular_user: User
-) -> None:
+async def test_get_current_user_happy_path(db_session: AsyncSession, regular_user: User) -> None:
     """Verify valid token resolves user entity."""
     token = create_access_token(regular_user.id, role=regular_user.role.value)
     creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
