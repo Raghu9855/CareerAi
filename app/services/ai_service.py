@@ -103,7 +103,11 @@ class AIService:
         status_label = "available"
 
         try:
-            response = await self.llm_client.generate(messages=messages, temperature=0.2)
+            response = await self.llm_client.generate(
+                messages=messages,
+                temperature=0.2,
+                response_format={"type": "json_object"},
+            )
             parsed_json = self._extract_json(response.content)
             explanation_obj = AnalysisExplanation.model_validate(parsed_json)
 
@@ -181,7 +185,11 @@ class AIService:
         status_label = "available"
 
         try:
-            response = await self.llm_client.generate(messages=messages, temperature=0.3)
+            response = await self.llm_client.generate(
+                messages=messages,
+                temperature=0.3,
+                response_format={"type": "json_object"},
+            )
             parsed_json = self._extract_json(response.content)
             prep_obj = InterviewPrepRecommendation.model_validate(parsed_json)
 

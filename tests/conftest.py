@@ -47,25 +47,31 @@ def get_test_settings() -> Settings:
 @pytest.fixture(scope="session", autouse=True)
 def override_settings():
     """Apply test settings globally."""
+    from app.ai.llm.factory import get_llm_client
     from app.core import config
 
     config.get_settings = get_test_settings  # type: ignore[assignment]
+    get_llm_client.cache_clear()
     yield
     config.get_settings = get_settings  # type: ignore[assignment]
+    get_llm_client.cache_clear()
 
 
 @pytest.fixture(autouse=True)
 async def setup_test_db() -> AsyncGenerator[None, None]:
     """Create all database tables before each test and drop them afterwards."""
+    from app.ai.llm.factory import get_llm_client
     from app.core.rate_limit import limiter
 
     limiter.reset()
+    get_llm_client.cache_clear()
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
     limiter.reset()
+    get_llm_client.cache_clear()
 
 
 @pytest.fixture

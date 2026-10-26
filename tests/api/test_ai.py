@@ -199,3 +199,16 @@ async def test_ai_cross_user_isolation(client: AsyncClient) -> None:
 
     hacked_prep = await client.post(f"/api/v1/ai/interview-prep/{analysis_id}", headers=headers_b)
     assert hacked_prep.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_get_ai_status_endpoint(client: AsyncClient) -> None:
+    """Verify AI status endpoint reports active provider and model metadata."""
+    resp = await client.get("/api/v1/ai/status")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "provider" in data
+    assert "provider_label" in data
+    assert "model" in data
+    assert "base_url" in data
+    assert "is_mock" in data

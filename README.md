@@ -1,3 +1,13 @@
+---
+title: CareerAI — Job Intelligence Platform
+emoji: 🎯
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 🚀 CareerAI — AI-Powered Job Intelligence & Fit Analysis Platform
 
 [![CI/CD Pipeline](https://github.com/careerai/careerai/actions/workflows/ci.yml/badge.svg)](https://github.com/careerai/careerai/actions)
@@ -146,12 +156,93 @@ graph TD
 
 ---
 
+### Option C: Local LLM Setup with Ollama (Default for Local Development)
+
+CareerAI integrates **Ollama** as its primary default LLM provider for local development, enabling 100% private, free, and offline AI inference without requiring external cloud API keys.
+
+#### 1. Install Ollama on Windows
+Download and run the installer from the official website or install via Windows Package Manager (`winget`):
+```powershell
+winget install Ollama.Ollama
+```
+Or download directly: [https://ollama.com/download/OllamaSetup.exe](https://ollama.com/download/OllamaSetup.exe)
+
+#### 2. Start the Ollama Service
+On Windows, Ollama launches automatically in the background and resides in the system tray. If you need to start it manually from PowerShell:
+```powershell
+ollama serve
+```
+By default, the Ollama service binds to `http://localhost:11434`.
+
+#### 3. Download / Pull the Selected Model
+We recommend **`llama3.2`** (3B parameters, ~2.0 GB size) for responsive token generation on systems with 16 GB RAM:
+```powershell
+ollama pull llama3.2
+```
+*(Alternative models such as `llama3.1` (8B) or `mistral` (7B) are also supported by changing `LLM_MODEL` in `.env`).*
+
+#### 4. Verify the Model is Available
+```powershell
+ollama list
+```
+You should see `llama3.2:latest` listed.
+
+#### 5. Test the Local Ollama API
+Verify your local endpoint responds using PowerShell:
+```powershell
+# Check server version and health
+Invoke-RestMethod -Uri "http://localhost:11434/api/tags"
+
+# Test completion request
+$testPayload = @{
+    model = "llama3.2"
+    messages = @(@{ role = "user"; content = "Say hello in one word." })
+    stream = $false
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:11434/api/chat" -Method Post -Body $testPayload -ContentType "application/json"
+```
+
+#### 6. Configure CareerAI for Ollama
+Ensure your `.env` contains:
+```env
+LLM_PROVIDER=ollama
+LLM_MODEL=llama3.2
+OLLAMA_BASE_URL=http://localhost:11434
+LLM_TIMEOUT_SECONDS=120
+LLM_MAX_RETRIES=3
+```
+
+#### 7. Start CareerAI & Inspect AI Status
+```powershell
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+Verify the active engine by querying the health/status endpoint:
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/v1/ai/status"
+# Expected response: {"provider":"ollama","provider_label":"Ollama (Local)","model":"llama3.2","base_url":"http://localhost:11434","is_mock":false,"has_api_key":false}
+```
+
+---
+
 ## 🧪 Running the Test Suite
 
-CareerAI maintains an extensive test suite (159+ automated tests) achieving **~89% code coverage** across all layers:
+CareerAI maintains an extensive test suite (174+ automated tests) achieving **~89% code coverage** across all layers.
+
+> [!NOTE]
+> Automated tests execute against the offline `mock` provider by default using deterministic mock responses with zero dependencies on an active Ollama server or internet connection.
 
 ```bash
-# Run all tests with coverage report
+# Run all tests (offline, deterministic mock LLM)
+pytest
+
+# Run Ollama provider integration & error handling tests
+pytest tests/unit/test_ollama.py -v
+
+# Explicitly test with mock provider
+pytest -k "not ollama"
+
+# Run tests with coverage report
 pytest --cov=app --cov-report=term-missing
 
 # Run code style linter
@@ -159,9 +250,6 @@ ruff check .
 
 # Run static type checker
 mypy app
-
-# Run RAG evaluation benchmark
-python scripts/eval_rag.py
 ```
 
 ---
@@ -173,13 +261,17 @@ python scripts/eval_rag.py
 | `APP_NAME` | `CareerAI` | Application display name |
 | `APP_ENV` | `development` | Environment (`development`, `test`, `production`) |
 | `APP_DEBUG` | `false` | Enable verbose debug logging |
-| `DATABASE_URL` | `mysql+asyncmy://...` | SQLAlchemy async connection string |
+| `DATABASE_URL` | `sqlite+aiosqlite:///./careerai_dev.db` | SQLAlchemy async connection string |
 | `REDIS_URL` | `redis://localhost:6379/0` | Redis cluster connection URI |
 | `SECRET_KEY` | *(32+ char random string)* | JWT HMAC-SHA256 signature key |
 | `STORAGE_BACKEND` | `local` | Document storage engine (`local` or `s3`) |
 | `STORAGE_LOCAL_ROOT` | `./storage/uploads` | Path for local uploads |
 | `STORAGE_S3_BUCKET`| `careerai-documents` | Amazon S3 bucket name |
-| `LLM_PROVIDER` | `mock` | Active LLM client (`mock` or `openai`) |
+| `LLM_PROVIDER` | `ollama` | Active LLM client (`ollama`, `mock`, `groq`, `openai`, `gemini`) |
+| `LLM_MODEL` | `llama3.2` | Active LLM model name (e.g. `llama3.2`, `llama3.1`, `gpt-4o-mini`) |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama local HTTP API endpoint |
+| `LLM_TIMEOUT_SECONDS` | `120` | LLM HTTP request timeout in seconds |
+| `LLM_MAX_RETRIES` | `3` | Max exponential retries with jitter on transient failures |
 | `VECTOR_STORE_TYPE` | `memory` | Active vector store (`memory` or `chroma`) |
 
 ---

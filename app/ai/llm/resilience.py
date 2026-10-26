@@ -1,6 +1,7 @@
 """Resilience wrapper providing retries with jitter, in-memory caching, deduplication, and usage metrics."""
 
 import asyncio
+import contextlib
 import hashlib
 import json
 import random
@@ -9,7 +10,12 @@ from collections.abc import AsyncGenerator
 from typing import Any
 
 from app.ai.llm.client import LLMClient, LLMMessage, LLMResponse
-from app.core.errors import AppException, RateLimitError
+from app.core.errors import (
+    AppException,
+    ExternalServiceError,
+    RateLimitError,
+    ServiceUnavailableError,
+)
 from app.core.logging import get_logger
 
 logger = get_logger("careerai.ai.llm.resilience")
@@ -107,7 +113,10 @@ class ResilientLLMClient(LLMClient):
             future.set_result(response)
             return response
         except Exception as exc:
-            future.set_exception(exc)
+            if not future.done():
+                future.set_exception(exc)
+                with contextlib.suppress(Exception):
+                    future.exception()
             raise
         finally:
             async with self._lock:
@@ -187,9 +196,17 @@ try:
         RateLimitError,
         TimeoutError,
         ConnectionError,
+        ExternalServiceError,
+        ServiceUnavailableError,
         httpx.TimeoutException,
         httpx.NetworkError,
         httpx.HTTPStatusError,
     )
 except ImportError:
-    RETRYABLE_EXCEPTIONS = (RateLimitError, TimeoutError, ConnectionError)
+    RETRYABLE_EXCEPTIONS = (
+        RateLimitError,
+        TimeoutError,
+        ConnectionError,
+        ExternalServiceError,
+        ServiceUnavailableError,
+    )
