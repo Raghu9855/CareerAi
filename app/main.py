@@ -108,12 +108,24 @@ def create_app() -> FastAPI:
 
     static_dir = os.path.join(os.path.dirname(__file__), "static")
     if os.path.exists(static_dir):
-        app.mount("/ui", StaticFiles(directory=static_dir, html=True), name="static")
+        # Mount /ui for interactive web dashboard
+        app.mount("/ui", StaticFiles(directory=static_dir, html=True), name="ui")
+
+        # Mount /static, /css, and /js so assets resolve whether accessed via /, /ui/, or /static/
+        app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+        css_dir = os.path.join(static_dir, "css")
+        if os.path.exists(css_dir):
+            app.mount("/css", StaticFiles(directory=css_dir), name="css")
+
+        js_dir = os.path.join(static_dir, "js")
+        if os.path.exists(js_dir):
+            app.mount("/js", StaticFiles(directory=js_dir), name="js")
 
         @app.get("/app", include_in_schema=False)
         @app.get("/resume-ready", include_in_schema=False)
         async def ui_redirect() -> RedirectResponse:
-            return RedirectResponse(url="/ui")
+            return RedirectResponse(url="/ui/")
 
     @app.get("/", tags=["Root"])
     async def root_info(request: Request) -> Any:
@@ -121,12 +133,12 @@ def create_app() -> FastAPI:
         accept = request.headers.get("accept", "")
         index_file = os.path.join(static_dir, "index.html")
         if "text/html" in accept and os.path.exists(index_file):
-            return FileResponse(index_file)
+            return RedirectResponse(url="/ui/")
 
         return {
             "name": settings.APP_NAME,
             "version": "0.1.0",
-            "ui": "/ui",
+            "ui": "/ui/",
             "docs": "/docs",
             "health": "/health",
             "api_v1": settings.API_V1_PREFIX,
