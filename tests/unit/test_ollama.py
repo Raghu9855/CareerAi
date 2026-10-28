@@ -449,7 +449,7 @@ async def test_rag_pipeline_with_ollama_client(db_session: AsyncSession, sample_
     chunk = VectorChunk(
         id="c1",
         vector=[1.0, 0.0, 0.0],
-        text="Alice is a lead DevOps engineer with Kubernetes and AWS experience.",
+        text="Alice is a lead DevOps engineer with Kubernetes and Docker experience.",
         metadata={"user_id": sample_user.id, "document_id": 10, "filename": "alice_cv.pdf", "chunk_index": 0},
     )
     await vector_store.add_chunks([chunk])
@@ -466,7 +466,7 @@ async def test_rag_pipeline_with_ollama_client(db_session: AsyncSession, sample_
             "model": "llama3.2",
             "message": {
                 "role": "assistant",
-                "content": "Alice has extensive Kubernetes and AWS experience according to alice_cv.pdf.",
+                "content": "Alice has extensive Kubernetes and Docker experience according to alice_cv.pdf.",
             },
             "done": True,
         },
@@ -476,7 +476,7 @@ async def test_rag_pipeline_with_ollama_client(db_session: AsyncSession, sample_
     with patch("httpx.AsyncClient.post", new_callable=AsyncMock, return_value=mock_resp):
         res = await rag.query(user_id=sample_user.id, question="What is Alice's experience?")
         assert res.has_answer is True
-        assert "Kubernetes and AWS" in res.answer
+        assert "Kubernetes and Docker" in res.answer
         assert len(res.citations) == 1
         assert res.citations[0].document_id == 10
         assert res.citations[0].filename == "alice_cv.pdf"

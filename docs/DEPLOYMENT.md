@@ -1,6 +1,6 @@
-# CareerAI AWS Deployment & Infrastructure Guide
+# CareerAI Production Deployment & Operations Guide
 
-This guide details the complete, reproducible process for deploying **CareerAI** to Amazon Web Services (AWS) using Terraform, Amazon ECS (Fargate), RDS MySQL, S3, Secrets Manager, and Application Load Balancer with HTTPS.
+This guide details the complete, reproducible process for deploying **CareerAI** to production using multi-stage Docker containers, Docker Compose, Linux VMs, or Cloud PaaS (e.g., Render, Fly.io) with zero-downtime rolling deploys, database connection pooling, and health probes.
 
 ---
 
@@ -10,201 +10,151 @@ This guide details the complete, reproducible process for deploying **CareerAI**
                       Internet
                          │
                          ▼
-             [Route 53 / DNS HTTPS:443]
+             [HTTPS :443 Reverse Proxy / Ingress]
+             (TLS 1.3 Termination, Caddy / Nginx / Cloudflare)
                          │
-                         ▼
-         [Application Load Balancer (Public Subnets)]
-                 │                       │
-      (HTTP:80 -> Redirect HTTPS)        │ Forward :8000
-                                         ▼
-            [AWS ECS Fargate Tasks (Private Subnets)]
-            ├── Container: careerai-api:latest
-            ├── Execution Role: Pull ECR, CloudWatch Logs, Secrets
-            └── Task Role: S3 Get/Put/Delete (Least Privilege)
-                 │                       │
-         Private VPC Peering      Private DB Subnets
-                 │                       │
-                 ▼                       ▼
-       [Amazon S3 Documents]   [Amazon RDS MySQL 8.0]
-     (AES-256, 100% Private)   (Encrypted, Multi-AZ)
+                         ▼ Forward :8000
+             [CareerAI FastAPI Container Tier]
+             ├── Image: careerai:production
+             ├── Multi-stage non-root container
+             ├── Zero-dependency local persistent volume
+             └── Health Probes: /health, /ready, /metrics
+                         │
+        ┌────────────────┴────────────────┐
+        ▼                                 ▼
+[MySQL 8.0 Database]             [Redis 7.0 Cache & Queue]
+(InnoDB, Pre-ping Pools)         (Rate Limiting & Idempotency)
 ```
 
 ---
 
 ## 2. Prerequisites
 
-1. **AWS CLI v2** configured with administrative credentials (`aws configure`).
-2. **Terraform** >= 1.5.0 installed.
-3. **Docker** and Buildx installed locally for image builds.
-4. An **ACM Certificate ARN** for your domain (e.g. `arn:aws:acm:us-east-1:123456789012:certificate/...`).
-
-> [!CAUTION]
-> Terraform commands provision billable AWS resources (RDS, NAT Gateway, ALB, Fargate). Always verify estimated costs and review plans prior to `terraform apply`.
+1. **Docker** (>= 24.0) and **Docker Compose** (>= 2.20) installed on the deployment host.
+2. A registered domain with TLS/SSL certificate configured via Reverse Proxy or PaaS.
+3. Production secrets prepared for environment injection.
 
 ---
 
-## 3. Step-by-Step Provisioning
+## 3. Production Deployment with Docker Compose
 
-### Step 3.1: Initialize Terraform
-Navigate to the Terraform directory:
+### Step 3.1: Environment Configuration
+Create a `.env.production` file on your server (never commit secrets to version control):
 ```bash
-cd infra/terraform
-terraform init
+APP_NAME=CareerAI
+APP_ENV=production
+APP_DEBUG=false
+HOST=0.0.0.0
+PORT=8000
+
+# Database (MySQL 8)
+DATABASE_URL=mysql+asyncmy://careerai_user:SECURE_DB_PASSWORD@mysql:3306/careerai_db
+
+# Redis
+REDIS_URL=redis://redis:6379/0
+
+# Security & JWT
+SECRET_KEY=GENERATE_SUPER_SECRET_MIN_32_CHAR_STRING
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
+
+# Storage
+STORAGE_BACKEND=local
+STORAGE_LOCAL_ROOT=/app/storage/uploads
+MAX_UPLOAD_SIZE_BYTES=10485760
+
+# LLM Configuration
+LLM_PROVIDER=mock  # or groq / openai / gemini with LLM_API_KEY
+LLM_TIMEOUT_SECONDS=30
+LLM_MAX_RETRIES=2
 ```
 
-### Step 3.2: Configure Variables
-Create a `terraform.tfvars` file (do **NOT** commit to git):
-```hcl
-aws_region           = "us-east-1"
-environment          = "production"
-vpc_cidr             = "10.0.0.0/16"
-domain_name          = "api.careerai.io"
-certificate_arn      = "arn:aws:acm:us-east-1:123456789012:certificate/your-cert-id"
-db_instance_class    = "db.t4g.small"
-db_allocated_storage = 20
-container_cpu        = 512
-container_memory     = 1024
-desired_count        = 2
+### Step 3.2: Launch the Production Stack
+```bash
+# Build and launch all services in detached mode
+docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-### Step 3.3: Plan & Apply Infrastructure
+### Step 3.3: Run Database Migrations
 ```bash
-terraform plan -out=tfplan
-terraform apply tfplan
-```
-Once complete, Terraform will output:
-- `alb_dns_name`: Load Balancer address
-- `ecr_repository_url`: ECR image repository URI
-- `rds_endpoint`: Private database endpoint
-- `s3_bucket_name`: Secure S3 bucket ID
-- `secrets_manager_arn`: ARN of application secrets
-
----
-
-## 4. Populating Production Secrets
-
-Update the secret payload in AWS Secrets Manager:
-```bash
-aws secretsmanager put-secret-value \
-  --secret-id "careerai/production/app-secrets" \
-  --secret-string '{
-    "SECRET_KEY": "'$(openssl rand -hex 32)'",
-    "DATABASE_URL": "mysql+asyncmy://careerai_admin:<DB_PASSWORD>@<RDS_ENDPOINT>/careerai_db",
-    "OPENAI_API_KEY": "sk-proj-...",
-    "S3_BUCKET_NAME": "<S3_BUCKET_NAME>",
-    "AWS_REGION": "us-east-1",
-    "STORAGE_BACKEND": "s3",
-    "LLM_PROVIDER": "openai",
-    "VECTOR_STORE_TYPE": "memory"
-  }'
+docker compose -f docker-compose.prod.yml exec api alembic upgrade head
 ```
 
 ---
 
-## 5. Build, Tag & Push Docker Image
+## 4. One-Click Cloud Deployment (Render / PaaS)
 
-Authenticate Docker with Amazon ECR:
+CareerAI includes native `render.yaml` infrastructure configuration:
+
 ```bash
-aws ecr get-login-password --region us-east-1 | \
-  docker login --username AWS --password-stdin <ECR_REPOSITORY_URL>
+# Push to your repository and connect Render to auto-deploy
+git push origin main
 ```
 
-Build and push the multi-stage image:
-```bash
-docker build -t careerai-api:latest -f docker/Dockerfile .
-docker tag careerai-api:latest <ECR_REPOSITORY_URL>:latest
-docker tag careerai-api:latest <ECR_REPOSITORY_URL>:sha-$(git rev-parse --short HEAD)
-
-docker push <ECR_REPOSITORY_URL>:latest
-docker push <ECR_REPOSITORY_URL>:sha-$(git rev-parse --short HEAD)
-```
+The blueprint automatically provisions:
+1. **Web Service**: FastAPI with Uvicorn ASGI workers.
+2. **Managed MySQL Database**: High-availability transactional storage.
+3. **Managed Redis Instance**: In-memory caching and distributed lock broker.
+4. **Persistent Disk**: Attached to `/app/storage/uploads` for resume documents.
 
 ---
 
-## 6. Safe Pre-Deployment Database Migrations
+## 5. Health Probes & Monitoring
 
-Before triggering a rolling update of the API tasks, run the Alembic database migrations as a standalone ECS Fargate task:
+CareerAI exposes 3 native monitoring endpoints:
 
-```bash
-aws ecs run-task \
-  --cluster careerai-production-cluster \
-  --task-definition careerai-production-api \
-  --launch-type FARGATE \
-  --network-configuration "awsvpcConfiguration={subnets=[<PRIVATE_SUBNET_1>],securityGroups=[<ECS_SG_ID>],assignPublicIp=DISABLED}" \
-  --overrides '{
-    "containerOverrides": [
-      {
-        "name": "api",
-        "command": ["python", "scripts/run_migrations_ecs.py"]
+- **Liveness Probe**: `GET /health`
+  - Returns `{"status": "ok"}`
+  - Used by load balancers and orchestrators for process liveness checks.
+
+- **Readiness Probe**: `GET /ready`
+  - Returns deep dependency checks:
+    ```json
+    {
+      "status": "ready",
+      "app": "CareerAI",
+      "checks": {
+        "database": "healthy"
       }
-    ]
-  }'
-```
+    }
+    ```
 
-Monitor task exit code:
+- **Process Telemetry**: `GET /metrics`
+  - Reports Memory RSS (MB), active threads, Python runtime, and loaded ML model version.
+
+---
+
+## 6. Zero-Downtime Rolling Updates
+
+To deploy an updated build without dropping connections:
+
 ```bash
-aws ecs wait tasks-stopped --cluster careerai-production-cluster --tasks <TASK_ARN>
+# 1. Pull latest code
+git pull origin main
+
+# 2. Build updated production image
+docker compose -f docker-compose.prod.yml build api
+
+# 3. Perform rolling container replacement
+docker compose -f docker-compose.prod.yml up -d --no-deps --build api
+
+# 4. Verify healthy state
+curl -s http://localhost:8000/ready
 ```
 
 ---
 
-## 7. Zero-Downtime Rolling Deployment
+## 7. Rollback Runbook
 
-Trigger a rolling deployment on the ECS service:
+If issues arise after deployment:
+
+### Application Rollback:
 ```bash
-aws ecs update-service \
-  --cluster careerai-production-cluster \
-  --service careerai-production-service \
-  --force-new-deployment
+# Revert to previous image tag or commit
+docker compose -f docker-compose.prod.yml up -d --build api
 ```
 
-### Deployment Strategy Parameters:
-- `minimum_healthy_percent`: `100` (Guarantees that active tasks are not terminated until new tasks have passed ALB healthchecks).
-- `maximum_percent`: `200` (Allows Fargate to spawn 2x instances while shifting traffic).
-- Healthcheck interval: 15 seconds against `GET /health`.
-
----
-
-## 8. Rollback Runbook
-
-If CloudWatch Alarms trigger high latency or 5xx errors during deployment:
-
-### Instant Task Definition Rollback:
+### Database Schema Downgrade:
 ```bash
-# Roll back service to previous stable task definition revision (e.g. revision 4)
-aws ecs update-service \
-  --cluster careerai-production-cluster \
-  --service careerai-production-service \
-  --task-definition careerai-production-api:<PREVIOUS_REVISION>
+docker compose -f docker-compose.prod.yml exec api alembic downgrade -1
 ```
-
-### Database Schema Rollback (if required):
-Run an Alembic downgrade task:
-```bash
-aws ecs run-task \
-  --cluster careerai-production-cluster \
-  --task-definition careerai-production-api \
-  --launch-type FARGATE \
-  --network-configuration "awsvpcConfiguration={subnets=[<PRIVATE_SUBNET_1>],securityGroups=[<ECS_SG_ID>]}" \
-  --overrides '{
-    "containerOverrides": [
-      {
-        "name": "api",
-        "command": ["alembic", "downgrade", "-1"]
-      }
-    ]
-  }'
-```
-
----
-
-## 9. Observability & Alarms
-
-CloudWatch metrics are actively monitored:
-- **High 5xx Errors**: Alarms when ALB reports > 10 HTTP 5xx errors in 60s.
-- **Latency Spikes**: Alarms when ALB `TargetResponseTime` exceeds 500ms for 3 consecutive minutes.
-- **RDS CPU Spike**: Alarms when MySQL CPU utilization exceeds 80% for 10 minutes.
-- **Log Stream**: View real-time JSON logs via:
-  ```bash
-  aws logs tail /ecs/careerai-production --follow
-  ```

@@ -30,13 +30,10 @@ CANONICAL_SKILLS: dict[str, str] = {
     "mongodb": "MongoDB",
     "redis": "Redis",
     "elasticsearch": "Elasticsearch",
-    "dynamodb": "DynamoDB",
     "cassandra": "Cassandra",
     "sqlalchemy": "SQLAlchemy",
     "alembic": "Alembic",
     # Cloud & DevOps
-    "aws": "AWS",
-    "amazon web services": "AWS",
     "gcp": "Google Cloud",
     "azure": "Azure",
     "docker": "Docker",
@@ -102,7 +99,7 @@ CANONICAL_SKILLS: dict[str, str] = {
 def _compile_skill_patterns() -> list[tuple[re.Pattern[str], str]]:
     """Precompile regex patterns for skill extraction respecting word boundaries and special symbols."""
     patterns = []
-    # Sort skills by descending length so multi-word skills (e.g. 'amazon web services') match before single words
+    # Sort skills by descending length so multi-word skills (e.g. 'google cloud') match before single words
     sorted_skills = sorted(CANONICAL_SKILLS.keys(), key=len, reverse=True)
 
     for skill in sorted_skills:

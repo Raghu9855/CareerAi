@@ -11,7 +11,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
-        
+
         # Hugging Face Spaces embeds apps inside an iframe on huggingface.co.
         # Allow frame-ancestors when hosted on hf.space; otherwise enforce strict DENY.
         host = request.headers.get("host", "") + request.headers.get("x-forwarded-host", "")

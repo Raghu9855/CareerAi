@@ -1,4 +1,4 @@
-"""Script to safely run Alembic migrations in an ECS deployment task."""
+"""Script to safely run Alembic migrations in a containerized deployment task."""
 
 import subprocess
 import sys

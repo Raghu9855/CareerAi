@@ -44,7 +44,7 @@ class CareerAIUser(HttpUser):
         payload = {
             "resume_text": (
                 "Senior Software Engineer with 6 years experience specializing in "
-                "Python, FastAPI, MySQL, Redis, Docker, and AWS microservices."
+                "Python, FastAPI, MySQL, Redis, Docker, and Linux microservices."
             ),
             "job_description": (
                 "Looking for a Senior Backend Engineer proficient in Python, FastAPI, MySQL, and Docker architecture."

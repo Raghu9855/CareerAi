@@ -15,16 +15,16 @@ EVAL_DOCUMENTS: list[dict[str, Any]] = [
         "text": (
             "John Doe - Senior Backend Engineer. 6 years experience in Python, FastAPI, and SQLAlchemy. "
             "Designed high-throughput MySQL and Redis caching layers. Led containerization using Docker "
-            "and Kubernetes. Implemented GitHub Actions CI/CD pipelines deploying to AWS ECS."
+            "and Kubernetes. Implemented GitHub Actions CI/CD pipelines deploying to production clusters."
         ),
     },
     {
         "doc_id": 102,
-        "filename": "aws_solutions_architect_cert.pdf",
+        "filename": "kubernetes_administrator_cert.pdf",
         "text": (
-            "AWS Certified Solutions Architect - Associate. Validation Number: AWS-SAA-987654321. "
-            "Demonstrated proficiency in VPC peering, IAM least privilege roles, RDS multi-AZ deployments, "
-            "S3 server-side encryption, and CloudWatch metrics and alarms."
+            "Certified Kubernetes Administrator (CKA). Validation Number: CKA-987654321. "
+            "Demonstrated proficiency in cluster architecture, RBAC authorization, PersistentVolumes, "
+            "Ingress controllers, networking, and monitoring."
         ),
     },
     {
@@ -46,9 +46,9 @@ EVAL_QUERIES: list[dict[str, Any]] = [
         "expect_hit": True,
     },
     {
-        "question": "What is the AWS certification validation number?",
+        "question": "What is the CKA certification validation number?",
         "expected_doc_id": 102,
-        "expected_keywords": ["aws-saa-987654321"],
+        "expected_keywords": ["cka-987654321"],
         "expect_hit": True,
     },
     {

@@ -37,7 +37,7 @@ async def test_upload_valid_txt_document(client: AsyncClient) -> None:
     ).json()
     token = user["tokens"]["access_token"]
 
-    txt_content = b"Skills: Python, FastAPI, Docker, Kubernetes, AWS, Machine Learning."
+    txt_content = b"Skills: Python, FastAPI, Docker, Kubernetes, Linux, Machine Learning."
     files = {"file": ("resume.txt", txt_content, "text/plain")}
     data = {"doc_type": "resume"}
 

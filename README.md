@@ -26,8 +26,8 @@ pinned: false
 
 ```mermaid
 graph TD
-    Client[Web & Mobile Clients] -->|HTTPS :443| ALB[AWS Application Load Balancer]
-    ALB -->|Reverse Proxy :8000| FastAPI[FastAPI Application Tier]
+    Client[Web & Mobile Clients] -->|HTTPS :443| LB[Application Load Balancer / Reverse Proxy]
+    LB -->|Reverse Proxy :8000| FastAPI[FastAPI Application Tier]
 
     subgraph "Application Middleware Stack"
         FastAPI --> SecHead[Security Headers Middleware]
@@ -46,12 +46,12 @@ graph TD
     end
 
     subgraph "Data & Storage Persistence"
-        AuthSvc --> MySQL[(Amazon RDS MySQL 8.0)]
-        DocSvc --> S3[(Amazon S3 Documents)]
+        AuthSvc --> MySQL[(MySQL 8.0 Database)]
+        DocSvc --> Storage[(Document Storage Volumes)]
         MLSvc --> MLModel[RandomForest Model Artifact]
         AISvc --> LLM[Resilient LLM Client]
         RAGSvc --> VecStore[(Vector Store)]
-        RateLim --> Redis[(Amazon ElastiCache Redis)]
+        RateLim --> Redis[(Redis 7.0 Cache & Queue)]
         Idemp --> Redis
     end
 ```
@@ -67,7 +67,7 @@ graph TD
 - **📄 Document Ingestion & Validation Pipeline**:
   - Multi-format text extraction (PDF, DOCX, TXT) with `pypdf` and `python-docx`.
   - Deep magic byte verification (`%PDF`, `PK\x03\x04`), MIME whitelist, and path traversal sanitization.
-  - Swappable storage abstraction (local filesystem in dev, Amazon S3 with AES-256 encryption in production).
+  - Secure storage abstraction (local filesystem and persistent volumes with path-traversal protection).
 - **🤖 Deterministic ML Compatibility Engine**:
   - 8-dimensional feature extractor (TF-IDF n-gram cosine similarity, Jaccard overlap, canonical skill taxonomy matching).
   - Trained `RandomForestRegressor` with $R^2 = 0.9927$ and sub-15ms inference latency.
@@ -102,7 +102,7 @@ graph TD
 | **Machine Learning**| scikit-learn, NumPy, TF-IDF vectorizer, Joblib |
 | **LLM & RAG** | Provider-agnostic `LLMClient`, VectorStore Protocol, Mock & OpenAI implementations |
 | **Testing & Quality**| pytest, pytest-asyncio, pytest-cov (~89% coverage), HTTPX, Ruff, Mypy |
-| **Infrastructure** | Docker, Docker Compose, Terraform, AWS (ECS Fargate, RDS, S3, ALB, Secrets Manager) |
+| **Infrastructure** | Docker, Docker Compose, Linux, Multi-Stage Production Containers |
 
 ---
 
@@ -264,9 +264,8 @@ mypy app
 | `DATABASE_URL` | `sqlite+aiosqlite:///./careerai_dev.db` | SQLAlchemy async connection string |
 | `REDIS_URL` | `redis://localhost:6379/0` | Redis cluster connection URI |
 | `SECRET_KEY` | *(32+ char random string)* | JWT HMAC-SHA256 signature key |
-| `STORAGE_BACKEND` | `local` | Document storage engine (`local` or `s3`) |
+| `STORAGE_BACKEND` | `local` | Document storage engine (`local`) |
 | `STORAGE_LOCAL_ROOT` | `./storage/uploads` | Path for local uploads |
-| `STORAGE_S3_BUCKET`| `careerai-documents` | Amazon S3 bucket name |
 | `LLM_PROVIDER` | `ollama` | Active LLM client (`ollama`, `mock`, `groq`, `openai`, `gemini`) |
 | `LLM_MODEL` | `llama3.2` | Active LLM model name (e.g. `llama3.2`, `llama3.1`, `gpt-4o-mini`) |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama local HTTP API endpoint |
@@ -284,7 +283,7 @@ mypy app
 - 🗄️ [**Database & ERD Reference**](docs/DATABASE.md): Mermaid ER diagram, indexing strategies, and migration history.
 - 🧠 [**AI / ML / RAG Documentation**](docs/AI.md): Model performance ($R^2=0.9927$), feature vectors, and RAG evaluation.
 - 🔒 [**Security & Compliance**](docs/SECURITY.md): OWASP Top 10 defenses, token security, and tenant isolation.
-- ☁️ [**AWS Deployment Guide**](docs/DEPLOYMENT.md): Terraform Infrastructure-as-Code and ECS rolling update runbooks.
+- ☁️ [**Production Deployment Guide**](docs/DEPLOYMENT.md): Container deployment runbooks and production operations.
 - 📊 [**Performance & Load Testing**](docs/LOAD_TESTING.md): Locust benchmarks with 617 RPS and sub-15ms ML latency.
 - 📝 [**Architecture Decision Records (ADRs)**](docs/DECISIONS.md): Key technical decisions and architectural trade-offs.
 

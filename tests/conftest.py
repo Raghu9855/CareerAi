@@ -40,6 +40,7 @@ def get_test_settings() -> Settings:
         STORAGE_BACKEND="local",
         STORAGE_LOCAL_ROOT="./test_storage",
         LLM_PROVIDER="mock",
+        LLM_MODEL="llama3.2",
         VECTOR_STORE_TYPE="memory",
     )
 

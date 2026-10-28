@@ -1,0 +1,112 @@
+/* ==========================================================================
+   CareerAI — Apple-Inspired Design System Tokens (Cupertino Dark)
+   ========================================================================== */
+
+:root {
+  /* Surface & Canvas Colors (Deep Charcoal & Zinc) */
+  --canvas-base: #000000;
+  --canvas-subtle: #09090b;
+  --canvas-elevated: #121214;
+  --surface-card: #18181b;
+  --surface-card-hover: #202024;
+  --surface-elevated: #27272a;
+  --surface-overlay: rgba(24, 24, 27, 0.88);
+  --surface-modal: #1c1c1e;
+  --surface-inset: rgba(0, 0, 0, 0.35);
+
+  /* Borders & Dividers */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.14);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --border-focus: #0a84ff;
+
+  /* Cupertino Primary Accent (Apple California Blue) */
+  --accent: #0a84ff;
+  --accent-hover: #0071e3;
+  --accent-active: #005bb5;
+  --accent-subtle: rgba(10, 132, 255, 0.12);
+  --accent-subtle-hover: rgba(10, 132, 255, 0.2);
+  --accent-glow: rgba(10, 132, 255, 0.25);
+  --accent-contrast: #ffffff;
+
+  /* Semantic Status Colors (Apple System Palette) */
+  --success: #30d158;
+  --success-subtle: rgba(48, 209, 88, 0.12);
+  --success-border: rgba(48, 209, 88, 0.3);
+  --success-text: #34d399;
+
+  --warning: #ff9f0a;
+  --warning-subtle: rgba(255, 159, 10, 0.12);
+  --warning-border: rgba(255, 159, 10, 0.3);
+  --warning-text: #fbbf24;
+
+  --danger: #ff453a;
+  --danger-subtle: rgba(255, 69, 58, 0.12);
+  --danger-border: rgba(255, 69, 58, 0.3);
+  --danger-text: #f87171;
+
+  --purple: #bf5af2;
+  --purple-subtle: rgba(191, 90, 242, 0.12);
+  --purple-border: rgba(191, 90, 242, 0.3);
+  --purple-text: #c084fc;
+
+  /* Typography Colors (WCAG 2.1 AA+ High Contrast) */
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --text-tertiary: #86868b;
+  --text-quaternary: #52525b;
+  --text-disabled: #3f3f46;
+
+  /* Typography Font Stacks */
+  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", -apple-system-font, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", monospace;
+
+  /* Spacing Scale */
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Corner Radii */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-full: 9999px;
+
+  /* Refined Apple Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-modal: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.15);
+
+  /* Glassmorphism & Materials */
+  --blur-nav: blur(20px) saturate(180%);
+  --blur-modal: blur(30px) saturate(190%);
+
+  /* Transitions & Animation Physics */
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.15s var(--ease-in-out);
+  --transition-normal: 0.25s var(--ease-apple);
+  --transition-spring: 0.4s var(--ease-apple);
+
+  /* Max Widths */
+  --container-max: 1360px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

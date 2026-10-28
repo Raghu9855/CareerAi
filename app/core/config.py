@@ -48,15 +48,9 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # Storage Settings
-    STORAGE_BACKEND: str = "local"  # "local" | "s3"
+    STORAGE_BACKEND: str = "local"
     STORAGE_LOCAL_ROOT: str = "./storage/uploads"
     MAX_UPLOAD_SIZE_BYTES: int = 10 * 1024 * 1024  # 10 MB
-
-    # AWS Settings (used when STORAGE_BACKEND=s3 or deployed to AWS)
-    AWS_REGION: str = "us-east-1"
-    AWS_S3_BUCKET: str = "careerai-documents-bucket"
-    AWS_ACCESS_KEY_ID: str = ""
-    AWS_SECRET_ACCESS_KEY: str = ""
 
     # ML Configuration
     MODEL_DIR: str = "./app/ml/artifacts"

@@ -26,7 +26,7 @@
 
 ## ADR 3: Structured JSON Logging & Request ID Propagation
 - **Status:** Accepted
-- **Context:** CloudWatch and modern log aggregators require structured JSON logs to trace transactions across distributed services without exposing sensitive PII or credentials.
+- **Context:** Modern log aggregators, Grafana Loki, and ELK require structured JSON logs to trace transactions across distributed services without exposing sensitive PII or credentials.
 - **Decision:**
   - Inject a unique `X-Request-ID` (UUIDv4) into every request via middleware.
   - Format all standard library logging output as JSON containing `timestamp`, `level`, `request_id`, `logger`, `message`, and `extra` attributes.
@@ -37,10 +37,10 @@
 
 ## ADR 4: Swappable AI & Storage Interfaces
 - **Status:** Accepted
-- **Context:** Development and test environments need to operate without external LLM API costs or AWS S3 credentials, while production requires robust AWS and provider integrations.
+- **Context:** Development and test environments need to operate without external LLM API costs or external dependencies, with hermetic local storage.
 - **Decision:**
   - `LLMClient` protocol with `MockLLMClient` (configurable faults, zero external calls) and real provider clients.
-  - `StorageService` protocol with `LocalStorageService` (development) and `S3StorageService` (production).
+  - `StorageService` protocol with `LocalStorageService` enforcing path-traversal validation and isolated root directories.
   - `VectorStore` protocol with `InMemoryVectorStore` and `ChromaVectorStore`.
 - **Consequences:** Full unit and integration test coverage without external API keys or cloud spend.
 
@@ -92,10 +92,10 @@
 
 ## ADR 8: Comprehensive Automated Testing, Error Boundary Verification & Factory Fixtures
 - **Status:** Accepted
-- **Context:** To ensure long-term stability and resilience, all domain layers (Auth, Storage, ML, AI, RAG) must have meaningful test coverage (>=80%) without artificial padding, with all external network boundaries strictly mocked (boto3 S3, LLM providers, vector stores, in-memory SQLite).
+- **Context:** To ensure long-term stability and resilience, all domain layers (Auth, Storage, ML, AI, RAG) must have meaningful test coverage (>=80%) without artificial padding, with all external network boundaries strictly mocked (LLM providers, vector stores, in-memory SQLite).
 - **Decision:**
   - Implemented modular dataclass factories (`tests/factories.py`) for consistent test entity generation (`UserFactory`, `JobFactory`, `ProfileFactory`).
-  - Added unit test coverage for AWS S3 Storage (`tests/unit/test_storage_s3.py`) mocking `boto3.client` across upload, download, delete, and external failure exceptions.
+  - Added unit test coverage for Local Storage Backend (`tests/unit/test_storage_local.py`) testing file persistence, retrieval, deletion, and path traversal security defense.
   - Added text extraction unit tests (`tests/unit/test_text_extraction.py`) covering multi-format parsing, character cleanup, encoding fallbacks, and corrupt file error handling.
   - Added document validation unit tests (`tests/unit/test_document_validator.py`) for path traversal protection, MIME whitelist, and magic bytes security.
   - Added AuthService unit tests (`tests/unit/test_auth_service.py`) for duplicate email rejection, invalid password handling, replay attack detection, and refresh token rotation.
@@ -117,23 +117,22 @@
   - GitHub Actions Workflow (`.github/workflows/ci.yml`):
     - Fast static gate: Ruff linting and Mypy static type checking.
     - Integration test gate: Runs full pytest test suite against isolated service containers, enforcing a strict `--cov-fail-under=80` coverage bar.
-    - Deployment gate: Automatic Docker Buildx build, commit SHA tagging, and push to Amazon ECR upon merge to `main`.
+    - Deployment gate: Automatic Docker Buildx build, commit SHA tagging, and push to container registry upon merge to `main`.
 - **Consequences:** Hermetic builds, minimal vulnerability surface (<150MB compressed), and automated verification before any image reaches staging/production.
 
 ---
 
-## ADR 10: AWS Cloud Infrastructure Topology, Secrets & Zero-Downtime Deployment
+## ADR 10: Production Container Infrastructure & Zero-Downtime Operations
 - **Status:** Accepted
-- **Context:** Production requirements mandate secure, isolated infrastructure on AWS (VPC, private subnets, security groups, RDS MySQL, private encrypted S3, ALB with HTTPS, Secrets Manager, CloudWatch Alarms) with zero billable resources created unconfirmed.
+- **Context:** Production requirements mandate secure, isolated container infrastructure with zero external cloud lock-in, automated health verification, and zero-downtime rolling deploys.
 - **Decision:**
-  - Codified end-to-end Infrastructure-as-Code via Terraform (`infra/terraform/`):
-    - Multi-AZ VPC with 2 public subnets (ALB & NAT), 2 private subnets (ECS tasks), and 2 database subnets (RDS MySQL).
-    - Least-privilege security groups: ALB accepts 80/443; ECS accepts port 8000 from ALB only; RDS accepts port 3306 exclusively from ECS.
-    - S3 Bucket for private candidate resumes with AES-256 server-side encryption, versioning, and 100% public access block.
-    - AWS Secrets Manager integration: credentials injected directly into Fargate tasks at startup without ever being written to disk or repository.
-    - Zero-downtime rolling deployments (`minimum_healthy_percent = 100`, `maximum_percent = 200`) preceded by safe one-shot Alembic migration tasks.
-    - Target-tracking CPU autoscaling (70% utilization target) and CloudWatch metric alarms for latency (>500ms), 5xx errors, and DB load.
-- **Consequences:** Fully reproducible, enterprise-ready infrastructure ready for one-click provisioning with complete rollback and operational runbooks (`docs/DEPLOYMENT.md`).
+  - Codified container deployment via production Docker Compose (`docker-compose.prod.yml`) and PaaS blueprints (`render.yaml`):
+    - Multi-stage non-root container base with built-in health probes (`/health`, `/ready`, `/metrics`).
+    - Least-privilege network isolation: reverse proxy terminates TLS, routing to API containers; MySQL and Redis are isolated within internal docker networks.
+    - Persistent volume storage with path traversal sanitization and tenant-isolated directory partitioning.
+    - Production secrets injected via environment variables and Docker secrets.
+    - Zero-downtime rolling deployments preceded by safe one-shot Alembic migration commands.
+- **Consequences:** Cloud-agnostic, portable infrastructure capable of deploying to any Linux host, Docker Swarm, Kubernetes, or PaaS with comprehensive operational runbooks (`docs/DEPLOYMENT.md`).
 
 ---
 

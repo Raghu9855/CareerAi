@@ -26,24 +26,24 @@ SEED_DATA: list[dict[str, Any]] = [
     {
         "resume": (
             "Senior Backend Engineer with 7 years of Python experience. Built microservices with FastAPI, "
-            "SQLAlchemy, and MySQL. Implemented Redis caching, Docker containerization, and AWS ECS deployment "
+            "SQLAlchemy, and MySQL. Implemented Redis caching, Docker containerization, and Linux deployment "
             "with GitHub Actions CI/CD. Strong experience with REST APIs and system design."
         ),
         "job": (
             "We are seeking a Senior Python Backend Engineer to scale our microservices. Requirements: 5+ years "
-            "Python, expertise in FastAPI or Django, MySQL, Redis, Docker, and AWS. Must have experience with "
+            "Python, expertise in FastAPI or Django, MySQL, Redis, Docker, and Linux. Must have experience with "
             "REST API architecture and CI/CD pipelines."
         ),
         "score": 95.0,
     },
     {
         "resume": (
-            "DevOps / Platform Engineer specializing in Kubernetes, Docker, Terraform, and AWS. Designed "
+            "DevOps / Platform Engineer specializing in Kubernetes, Docker, Terraform, and Linux. Designed "
             "multi-region infrastructure, configured CI/CD with GitHub Actions, managed Linux clusters, and "
             "enforced cloud security."
         ),
         "job": (
-            "Staff DevOps Engineer needed to manage cloud infrastructure on AWS. Strong experience with "
+            "Staff DevOps Engineer needed to manage cloud container infrastructure. Strong experience with "
             "Kubernetes, Docker, Terraform, and CI/CD pipelines required. Linux administration and bash scripting "
             "skills mandatory."
         ),
@@ -53,7 +53,7 @@ SEED_DATA: list[dict[str, Any]] = [
         "resume": (
             "Machine Learning Engineer experienced in Python, Scikit-Learn, PyTorch, NumPy, and Pandas. "
             "Built end-to-end NLP pipelines, vector search with ChromaDB and Qdrant, and deployed LLM "
-            "RAG applications on AWS."
+            "RAG applications in production."
         ),
         "job": (
             "Senior Machine Learning / AI Engineer. Seeking hands-on experience with Python, Scikit-Learn, PyTorch, "
@@ -92,7 +92,7 @@ SEED_DATA: list[dict[str, Any]] = [
         ),
         "job": (
             "Senior Python Backend Engineer needed. Requirements: 4+ years Python, FastAPI experience, MySQL, "
-            "Redis, AWS, and Docker. Experience with microservices."
+            "Redis, Linux, and Docker. Experience with microservices."
         ),
         "score": 76.0,
     },
@@ -109,11 +109,11 @@ SEED_DATA: list[dict[str, Any]] = [
     },
     {
         "resume": (
-            "Cloud Architect with deep AWS, Linux, Terraform, and Docker experience. Basic knowledge of "
+            "Cloud Architect with deep Linux, Kubernetes, Terraform, and Docker experience. Basic knowledge of "
             "Kubernetes and CI/CD."
         ),
         "job": (
-            "DevOps Engineer with deep Kubernetes, Docker, Terraform, and AWS experience. Must know GitHub Actions "
+            "DevOps Engineer with deep Kubernetes, Docker, Terraform, and Linux experience. Must know GitHub Actions "
             "CI/CD and system design."
         ),
         "score": 78.0,
@@ -133,11 +133,11 @@ SEED_DATA: list[dict[str, Any]] = [
     {
         "resume": (
             "Junior Python Developer with bootcamp training. Built personal projects in Flask, SQLite, and Git. "
-            "Eager to learn Docker, AWS, and enterprise database systems."
+            "Eager to learn Docker, Linux, and enterprise database systems."
         ),
         "job": (
             "Senior Python Backend Engineer. 5+ years experience required with FastAPI, MySQL, Redis, Docker, and "
-            "AWS microservices."
+            "containerized microservices."
         ),
         "score": 48.0,
     },
@@ -148,7 +148,7 @@ SEED_DATA: list[dict[str, Any]] = [
         ),
         "job": (
             "Python Backend Engineer. Must have strong proficiency in Python, FastAPI, SQLAlchemy, Redis, and "
-            "AWS cloud deployment."
+            "cloud deployment."
         ),
         "score": 55.0,
     },
@@ -170,7 +170,7 @@ SEED_DATA: list[dict[str, Any]] = [
         ),
         "job": (
             "Machine Learning Engineer. Must know PyTorch, Scikit-Learn, LLM fine-tuning, RAG architecture, "
-            "and model deployment on AWS."
+            "and model deployment on Linux."
         ),
         "score": 58.0,
     },
@@ -181,7 +181,7 @@ SEED_DATA: list[dict[str, Any]] = [
             "Figma designs."
         ),
         "job": (
-            "Senior DevOps Engineer. 5+ years managing Kubernetes clusters, AWS cloud infrastructure, Terraform, "
+            "Senior DevOps Engineer. 5+ years managing Kubernetes clusters, cloud container infrastructure, Terraform, "
             "and Linux administration."
         ),
         "score": 28.0,
@@ -214,7 +214,7 @@ SEED_DATA: list[dict[str, Any]] = [
             "management, and food safety regulations."
         ),
         "job": (
-            "Senior Python Backend Engineer. 5+ years Python, FastAPI, Docker, AWS, and MySQL microservices "
+            "Senior Python Backend Engineer. 5+ years Python, FastAPI, Docker, Linux, and MySQL microservices "
             "experience required."
         ),
         "score": 6.0,
@@ -235,7 +235,7 @@ SEED_DATA: list[dict[str, Any]] = [
             "Real Estate Agent with experience in residential property sales, negotiation, open houses, and "
             "local market market analysis."
         ),
-        "job": ("Cloud Infrastructure Engineer. AWS, Kubernetes, Terraform, Docker, and CI/CD pipelines."),
+        "job": ("Cloud Infrastructure Engineer. Kubernetes, Terraform, Docker, and CI/CD pipelines."),
         "score": 8.0,
     },
 ]

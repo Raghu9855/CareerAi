@@ -19,10 +19,10 @@ async def test_analyze_with_raw_text(client: AsyncClient) -> None:
     # 2. Analyze compatibility
     analyze_payload = {
         "resume_text": (
-            "Senior Backend Developer with 6 years experience in Python, FastAPI, MySQL, Redis, Docker, and AWS."
+            "Senior Backend Developer with 6 years experience in Python, FastAPI, MySQL, Redis, Docker, and Linux."
         ),
         "job_description": (
-            "Seeking Python Backend Engineer. Required: Python, FastAPI, MySQL, Redis, Docker, Kubernetes, and AWS."
+            "Seeking Python Backend Engineer. Required: Python, FastAPI, MySQL, Redis, Docker, Kubernetes, and Linux."
         ),
     }
     resp = await client.post("/api/v1/ml/analyze", json=analyze_payload, headers=headers)
@@ -57,7 +57,7 @@ async def test_analyze_with_document_and_job_entities(client: AsyncClient) -> No
         "company": "AI Innovations",
         "description": (
             "Building NLP pipelines and vector search systems with Python, Scikit-Learn, PyTorch, Docker, "
-            "Kubernetes, and AWS."
+            "Kubernetes, and Linux."
         ),
     }
     job_resp = await client.post("/api/v1/jobs", json=job_payload, headers=headers)

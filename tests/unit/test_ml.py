@@ -15,14 +15,14 @@ def test_skill_extractor_canonical_mapping() -> None:
     extractor = SkillExtractor()
     text = (
         "Senior software engineer with expertise in python, FastAPI, postgres, k8s, "
-        "AWS, and scikit-learn. Familiar with ci/cd and Docker."
+        "Linux, and scikit-learn. Familiar with ci/cd and Docker."
     )
     skills = extractor.extract_skills(text)
     assert "Python" in skills
     assert "FastAPI" in skills
     assert "PostgreSQL" in skills
     assert "Kubernetes" in skills
-    assert "AWS" in skills
+    assert "Linux" in skills
     assert "Scikit-Learn" in skills
     assert "CI/CD" in skills
     assert "Docker" in skills

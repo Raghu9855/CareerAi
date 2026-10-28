@@ -40,7 +40,7 @@ class DocumentService:
         # 1. Validation (size, extension, MIME, magic bytes, safe filename)
         safe_name, ext = validate_document(filename, content_type, file_bytes)
 
-        # 2. Persist to storage backend (Local filesystem or S3)
+        # 2. Persist to storage backend (Local filesystem)
         storage_path = await self.storage.save(file_bytes, safe_name, content_type)
 
         # 3. Create document record

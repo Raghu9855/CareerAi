@@ -125,7 +125,7 @@ class MockLLMClient(LLMClient):
                 ],
                 "areas_for_growth": [
                     "Deeper hands-on exposure to Kubernetes cluster management and Helm charts.",
-                    "Cloud infrastructure automation with Terraform on AWS.",
+                    "Cloud infrastructure automation with Terraform and Linux containers.",
                 ],
                 "match_verdict": "Strong Match",
             }

@@ -64,4 +64,4 @@ Every HTTP response includes hardened security headers configured by `SecurityHe
 
 ### Zero-Secrets Policy
 - No passwords, tokens, API keys, or credentials exist in the codebase or git history.
-- Production environments inject all secrets dynamically from AWS Secrets Manager.
+- Production environments inject all secrets dynamically via secure environment variables or container secret managers.

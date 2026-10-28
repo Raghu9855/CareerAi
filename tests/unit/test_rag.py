@@ -16,7 +16,7 @@ def test_chunker_sliding_window_and_overlap() -> None:
         "First sentence discussing Python and FastAPI. "
         "Second sentence covering MySQL and Redis caching. "
         "Third sentence detailing Docker containerization and Kubernetes. "
-        "Fourth sentence describing AWS deployment pipelines."
+        "Fourth sentence describing Linux deployment pipelines."
     )
     chunks = chunker.chunk_text(sample_text, document_id=1, user_id=10)
     assert len(chunks) >= 2

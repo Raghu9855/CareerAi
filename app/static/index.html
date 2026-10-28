@@ -4,1423 +4,493 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CareerAI — AI Resume Fit & Job Intelligence Platform</title>
+  <meta name="description" content="Enterprise-grade AI job intelligence, deterministic compatibility scoring, skill gap ranking, and document RAG.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-base: #07090e;
-      --bg-surface: #0f1422;
-      --bg-card: rgba(18, 24, 38, 0.75);
-      --bg-card-hover: rgba(26, 34, 54, 0.85);
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-focus: rgba(99, 102, 241, 0.5);
-      --primary: #6366f1;
-      --primary-hover: #4f46e5;
-      --primary-glow: rgba(99, 102, 241, 0.35);
-      --accent: #8b5cf6;
-      --success: #10b981;
-      --success-glow: rgba(16, 185, 129, 0.25);
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --text-dim: #64748b;
-      --font-display: 'Outfit', sans-serif;
-      --font-body: 'Inter', sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: var(--bg-base);
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
-        radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.06) 0px, transparent 50%);
-      background-attachment: fixed;
-      color: var(--text-main);
-      font-family: var(--font-body);
-      min-height: 100vh;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* Top Navigation */
-    header {
-      border-bottom: 1px solid var(--border-subtle);
-      background: rgba(7, 9, 14, 0.85);
-      backdrop-filter: blur(16px);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .nav-container {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 0.85rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      text-decoration: none;
-      color: var(--text-main);
-    }
-
-    .brand-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 16px var(--primary-glow);
-    }
-
-    .brand-logo svg {
-      width: 20px;
-      height: 20px;
-      color: white;
-    }
-
-    .brand-text h1 {
-      font-family: var(--font-display);
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-
-    /* Main Tab Navigation Buttons */
-    .main-tabs-bar {
-      display: flex;
-      gap: 0.35rem;
-      background: rgba(0, 0, 0, 0.4);
-      padding: 0.3rem;
-      border-radius: 12px;
-      border: 1px solid var(--border-subtle);
-      overflow-x: auto;
-    }
-
-    .nav-tab-btn {
-      padding: 0.5rem 0.9rem;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      font-family: var(--font-body);
-      font-size: 0.825rem;
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      white-space: nowrap;
-      transition: all 0.2s ease;
-    }
-
-    .nav-tab-btn:hover {
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .nav-tab-btn.active {
-      background: var(--primary);
-      color: white;
-      box-shadow: 0 2px 10px var(--primary-glow);
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .status-pill {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-subtle);
-      padding: 0.35rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .status-pill:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-main);
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--success);
-      box-shadow: 0 0 8px var(--success-glow);
-    }
-
-    /* Main Container */
-    main {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
-    }
-
-    .app-view {
-      display: none;
-      animation: fadeIn 0.25s ease forwards;
-    }
-
-    .app-view.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Hero Banner */
-    .hero-banner {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .hero-banner h2 {
-      font-family: var(--font-display);
-      font-size: 2.25rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      margin-bottom: 0.5rem;
-    }
-
-    .hero-banner h2 span {
-      background: linear-gradient(135deg, #a5b4fc, #c084fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero-banner p {
-      color: var(--text-muted);
-      max-width: 650px;
-      margin: 0 auto;
-      font-size: 0.95rem;
-    }
-
-    /* Cards & Layout */
-    .app-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-    }
-
-    @media (max-width: 1024px) {
-      .app-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 20px;
-      backdrop-filter: blur(20px);
-      padding: 1.75rem;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .card:hover {
-      border-color: rgba(255, 255, 255, 0.12);
-    }
-
-    .card-title {
-      font-family: var(--font-display);
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 0.35rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .card-subtitle {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 1.25rem;
-    }
-
-    /* Forms */
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-
-    label {
-      display: block;
-      font-size: 0.825rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 0.4rem;
-    }
-
-    textarea, input[type="text"], input[type="email"], input[type="password"], input[type="number"], select {
-      width: 100%;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      padding: 0.75rem 1rem;
-      color: var(--text-main);
-      font-family: var(--font-body);
-      font-size: 0.875rem;
-      transition: all 0.2s ease;
-    }
-
-    textarea:focus, input:focus, select:focus {
-      outline: none;
-      border-color: var(--border-focus);
-      box-shadow: 0 0 12px var(--primary-glow);
-      background: rgba(0, 0, 0, 0.5);
-    }
-
-    /* Buttons */
-    .btn-primary {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      width: 100%;
-      padding: 0.85rem 1.5rem;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: white;
-      font-family: var(--font-display);
-      font-size: 0.95rem;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 15px var(--primary-glow);
-      transition: all 0.2s ease;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px var(--primary-glow);
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-main);
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.825rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      transition: all 0.2s ease;
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
-      padding: 0.4rem 0.75rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.78rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.3);
-    }
-
-    /* Sub Tabs & Presets */
-    .tabs-nav {
-      display: flex;
-      gap: 0.5rem;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 0.3rem;
-      border-radius: 12px;
-      margin-bottom: 1.25rem;
-      border: 1px solid var(--border-subtle);
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 0.55rem 1rem;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      font-family: var(--font-body);
-      font-size: 0.825rem;
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .tab-btn.active {
-      background: var(--bg-surface);
-      color: var(--text-main);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .presets-container {
-      margin-bottom: 1.25rem;
-    }
-
-    .presets-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-dim);
-      margin-bottom: 0.5rem;
-      display: block;
-    }
-
-    .preset-chips {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    .preset-chip {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 0.4rem 0.75rem;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .preset-chip:hover {
-      background: rgba(99, 102, 241, 0.15);
-      border-color: var(--primary);
-      color: var(--text-main);
-    }
-
-    /* Score Radial Gauge */
-    .score-hero {
-      display: flex;
-      align-items: center;
-      gap: 1.75rem;
-      padding: 1.25rem;
-      background: rgba(0, 0, 0, 0.25);
-      border-radius: 16px;
-      border: 1px solid var(--border-subtle);
-      margin-bottom: 1.5rem;
-    }
-
-    .score-dial {
-      position: relative;
-      width: 100px;
-      height: 100px;
-      flex-shrink: 0;
-    }
-
-    .score-dial svg {
-      width: 100%;
-      height: 100%;
-      transform: rotate(-90deg);
-    }
-
-    .dial-bg {
-      fill: none;
-      stroke: rgba(255, 255, 255, 0.05);
-      stroke-width: 8;
-    }
-
-    .dial-fill {
-      fill: none;
-      stroke: var(--primary);
-      stroke-width: 8;
-      stroke-linecap: round;
-      stroke-dasharray: 283;
-      stroke-dashoffset: 283;
-      transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease;
-    }
-
-    .score-number {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: var(--font-display);
-      font-size: 1.6rem;
-      font-weight: 800;
-    }
-
-    .score-details h3 {
-      font-family: var(--font-display);
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-
-    .score-details p {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
-    }
-
-    .meta-badges {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 6px;
-      font-size: 0.725rem;
-      font-weight: 600;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-muted);
-    }
-
-    .badge.green {
-      background: rgba(16, 185, 129, 0.15);
-      border-color: rgba(16, 185, 129, 0.3);
-      color: #34d399;
-    }
-
-    .badge.purple {
-      background: rgba(139, 92, 246, 0.15);
-      border-color: rgba(139, 92, 246, 0.3);
-      color: #c084fc;
-    }
-
-    .badge.orange {
-      background: rgba(245, 158, 11, 0.15);
-      border-color: rgba(245, 158, 11, 0.3);
-      color: #fbbf24;
-    }
-
-    /* Skills Pill Grids */
-    .skills-block {
-      margin-bottom: 1.25rem;
-    }
-
-    .skills-block h4 {
-      font-size: 0.875rem;
-      font-weight: 600;
-      margin-bottom: 0.6rem;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .pill-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.45rem;
-    }
-
-    .skill-pill {
-      font-size: 0.78rem;
-      font-weight: 500;
-      padding: 0.35rem 0.75rem;
-      border-radius: 9999px;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
-    .skill-pill.matched {
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      color: #34d399;
-    }
-
-    .skill-pill.gap {
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid rgba(245, 158, 11, 0.25);
-      color: #fbbf24;
-    }
-
-    .gap-priority {
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      opacity: 0.8;
-      background: rgba(0, 0, 0, 0.2);
-      padding: 0.1rem 0.35rem;
-      border-radius: 4px;
-    }
-
-    /* AI Guidance & Interview Prep */
-    .guidance-box {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .guidance-list {
-      list-style: none;
-      margin-top: 0.4rem;
-    }
-
-    .guidance-list li {
-      position: relative;
-      padding-left: 1.2rem;
-      margin-bottom: 0.4rem;
-      font-size: 0.825rem;
-      color: var(--text-muted);
-    }
-
-    .guidance-list li::before {
-      content: "•";
-      position: absolute;
-      left: 0;
-      color: var(--primary);
-      font-weight: bold;
-    }
-
-    .prep-btn {
-      width: 100%;
-      padding: 0.8rem;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(168, 85, 247, 0.18));
-      border: 1px solid rgba(99, 102, 241, 0.35);
-      color: #e0e7ff;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.875rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      transition: all 0.2s ease;
-      margin-top: 0.75rem;
-    }
-
-    .prep-btn:hover {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
-      border-color: rgba(99, 102, 241, 0.6);
-      transform: translateY(-1px);
-    }
-
-    .question-card {
-      background: rgba(0, 0, 0, 0.28);
-      border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      padding: 0.9rem;
-      margin-top: 0.6rem;
-    }
-
-    .question-title {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-main);
-      margin-bottom: 0.4rem;
-      line-height: 1.4;
-    }
-
-    .question-concept {
-      font-size: 0.78rem;
-      color: #a5b4fc;
-      margin-bottom: 0.3rem;
-    }
-
-    .question-tip {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      border-left: 2px solid var(--primary);
-      padding-left: 0.6rem;
-      margin-top: 0.4rem;
-      font-style: italic;
-    }
-
-    /* RAG & Dropzone */
-    .drop-zone {
-      border: 2px dashed rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      background: rgba(0, 0, 0, 0.15);
-      margin-bottom: 1.25rem;
-    }
-
-    .drop-zone:hover {
-      border-color: var(--primary);
-      background: rgba(99, 102, 241, 0.05);
-    }
-
-    .rag-search-box {
-      display: flex;
-      gap: 0.6rem;
-      margin-bottom: 1rem;
-    }
-
-    .citation-card {
-      background: rgba(99, 102, 241, 0.05);
-      border: 1px solid rgba(99, 102, 241, 0.2);
-      border-radius: 10px;
-      padding: 0.85rem;
-      margin-top: 0.75rem;
-      font-size: 0.8rem;
-    }
-
-    /* ------------------------------------------------------------- */
-    /* KANBAN BOARD STYLES                                            */
-    /* ------------------------------------------------------------- */
-    .kanban-stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.75rem;
-    }
-
-    .stat-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      padding: 1rem 1.25rem;
-    }
-
-    .stat-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .stat-val {
-      font-family: var(--font-display);
-      font-size: 1.75rem;
-      font-weight: 800;
-      margin-top: 0.25rem;
-    }
-
-    .kanban-header-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.25rem;
-    }
-
-    .kanban-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 1.25rem;
-      overflow-x: auto;
-      padding-bottom: 1rem;
-    }
-
-    @media (max-width: 1200px) {
-      .kanban-grid {
-        grid-template-columns: repeat(5, 280px);
-      }
-    }
-
-    .kanban-col {
-      background: rgba(15, 20, 34, 0.6);
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 1rem;
-      min-height: 500px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .col-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 0.75rem;
-      margin-bottom: 0.75rem;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .col-title {
-      font-size: 0.85rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .col-count {
-      background: rgba(255, 255, 255, 0.08);
-      font-size: 0.725rem;
-      font-weight: 700;
-      padding: 0.15rem 0.5rem;
-      border-radius: 9999px;
-    }
-
-    .col-cards {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      flex: 1;
-    }
-
-    .app-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 1rem;
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
-
-    .app-card:hover {
-      border-color: rgba(99, 102, 241, 0.4);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-    }
-
-    .app-job-title {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 0.2rem;
-    }
-
-    .app-company {
-      font-size: 0.8rem;
-      color: var(--primary);
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-
-    .app-meta {
-      font-size: 0.725rem;
-      color: var(--text-muted);
-      margin-bottom: 0.6rem;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .app-notes {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      background: rgba(0, 0, 0, 0.2);
-      padding: 0.4rem 0.6rem;
-      border-radius: 6px;
-      margin-bottom: 0.6rem;
-      font-style: italic;
-    }
-
-    .app-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 0.5rem;
-      padding-top: 0.5rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .stage-select {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-muted);
-      font-size: 0.725rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 6px;
-      width: auto;
-    }
-
-    /* ------------------------------------------------------------- */
-    /* PROFILE & SKILLS STYLES                                        */
-    /* ------------------------------------------------------------- */
-    .profile-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-    }
-
-    @media (max-width: 900px) {
-      .profile-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .skill-manager-pill {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      padding: 0.5rem 0.85rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-    }
-
-    .skill-name-txt {
-      font-weight: 600;
-      font-size: 0.85rem;
-    }
-
-    .skill-prof-badge {
-      font-size: 0.675rem;
-      text-transform: uppercase;
-      font-weight: 700;
-      padding: 0.15rem 0.45rem;
-      border-radius: 4px;
-      background: rgba(99, 102, 241, 0.15);
-      color: #a5b4fc;
-    }
-
-    .remove-skill-btn {
-      color: #ef4444;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      font-size: 1.1rem;
-      line-height: 1;
-      padding: 0.2rem;
-    }
-
-    /* ------------------------------------------------------------- */
-    /* DATA TABLES (DOCUMENTS & HISTORY)                             */
-    /* ------------------------------------------------------------- */
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
-
-    .data-table th {
-      text-align: left;
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid var(--border-subtle);
-      color: var(--text-dim);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .data-table td {
-      padding: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      color: var(--text-main);
-    }
-
-    .data-table tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    /* Modals */
-    .modal-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(8px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 1.5rem;
-    }
-
-    .modal-backdrop.open {
-      display: flex;
-    }
-
-    .modal-box {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: 20px;
-      width: 100%;
-      max-width: 520px;
-      padding: 1.75rem;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-      animation: modalPop 0.2s ease forwards;
-    }
-
-    @keyframes modalPop {
-      from { transform: scale(0.95); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.25rem;
-    }
-
-    .modal-head h3 {
-      font-family: var(--font-display);
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-
-    .close-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.4rem;
-      cursor: pointer;
-    }
-
-    /* Spinner */
-    .spinner {
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      display: none;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/views.css">
 </head>
 <body>
 
-  <!-- Top Header Navigation -->
-  <header>
-    <div class="nav-container">
-      <a href="#" class="brand" onclick="switchAppTab('analyzer')">
-        <div class="brand-logo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Sticky Top Navigation -->
+  <header class="site-header">
+    <div class="header-inner">
+      <!-- Brand -->
+      <a href="#" class="brand-link" onclick="switchAppTab('analyzer'); return false;" aria-label="CareerAI Home">
+        <div class="brand-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
           </svg>
         </div>
-        <div class="brand-text">
-          <h1>CareerAI Intelligence</h1>
+        <div class="brand-title-wrap">
+          <span class="brand-name">CareerAI</span>
+          <span class="brand-tagline">Intelligence Platform</span>
         </div>
       </a>
 
-      <!-- App Feature Navigation Tabs -->
-      <nav class="main-tabs-bar">
-        <button class="nav-tab-btn active" id="nav-btn-analyzer" onclick="switchAppTab('analyzer')">
-          🎯 Fit & AI Analyzer
+      <!-- Apple-Style Segmented Navigation Tabs -->
+      <nav class="segmented-nav-wrapper" role="tablist" aria-label="Main Navigation">
+        <button class="nav-tab-btn active" id="nav-btn-analyzer" onclick="switchAppTab('analyzer')" role="tab" aria-selected="true" aria-controls="view-analyzer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="6"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+          </svg>
+          Fit &amp; AI Analyzer
         </button>
-        <button class="nav-tab-btn" id="nav-btn-kanban" onclick="switchAppTab('kanban')">
-          📋 Applications Kanban
+        <button class="nav-tab-btn" id="nav-btn-kanban" onclick="switchAppTab('kanban')" role="tab" aria-selected="false" aria-controls="view-kanban">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+            <line x1="15" y1="3" x2="15" y2="21"></line>
+          </svg>
+          Pipeline
         </button>
-        <button class="nav-tab-btn" id="nav-btn-profile" onclick="switchAppTab('profile')">
-          👤 Profile & Skills
+        <button class="nav-tab-btn" id="nav-btn-profile" onclick="switchAppTab('profile')" role="tab" aria-selected="false" aria-controls="view-profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          Profile &amp; Skills
         </button>
-        <button class="nav-tab-btn" id="nav-btn-documents" onclick="switchAppTab('documents')">
-          📁 Document Library
+        <button class="nav-tab-btn" id="nav-btn-documents" onclick="switchAppTab('documents')" role="tab" aria-selected="false" aria-controls="view-documents">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Documents
         </button>
-        <button class="nav-tab-btn" id="nav-btn-history" onclick="switchAppTab('history')">
-          🕒 Analysis History
+        <button class="nav-tab-btn" id="nav-btn-history" onclick="switchAppTab('history')" role="tab" aria-selected="false" aria-controls="view-history">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          History
         </button>
       </nav>
 
-      <!-- Action Badges -->
+      <!-- Contextual Action Controls -->
       <div class="header-actions">
-        <div class="status-pill" id="ai-engine-pill" style="border-color: rgba(99, 102, 241, 0.35); background: rgba(99, 102, 241, 0.1);">
-          <span class="status-dot" id="ai-engine-dot" style="background: var(--primary);"></span>
+        <div class="status-pill" id="ai-engine-pill" title="Active AI engine provider status">
+          <span class="status-dot" id="ai-engine-dot"></span>
           <span id="ai-engine-label">AI: Checking...</span>
         </div>
-        <div class="status-pill" onclick="openMetricsModal()">
-          <span class="status-dot"></span>
-          <span>⚡ Metrics</span>
-        </div>
-        <div class="status-pill" onclick="openAuthModal()" id="user-account-pill">
-          <span>👤 <span id="account-pill-label">Guest</span></span>
-        </div>
-        <a href="/docs" target="_blank" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 500;">Docs</a>
+        <button class="status-pill" onclick="openMetricsModal()" aria-label="Open Diagnostics">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <span>Diagnostics</span>
+        </button>
+        <button class="status-pill" onclick="openAuthModal()" id="user-account-pill" aria-label="Account Settings">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span id="account-pill-label">Guest</span>
+        </button>
+        <a href="/docs" target="_blank" class="btn btn-sm btn-ghost" style="color: var(--text-tertiary); font-size: 13px;">API Docs</a>
       </div>
     </div>
   </header>
 
-  <!-- Main View Area -->
-  <main>
+  <!-- Main View Container -->
+  <main class="app-main">
 
     <!-- ========================================================================= -->
     <!-- VIEW 1: RESUME FIT & AI ANALYZER                                         -->
     <!-- ========================================================================= -->
-    <div id="view-analyzer" class="app-view active">
-      <div class="hero-banner">
-        <h2>Is Your Resume <span>Ready for the Role?</span></h2>
-        <p>Instant ML compatibility scoring, verified skill-gap ranking, and AI interview prep recommendations backed by multi-tenant intelligence.</p>
+    <section id="view-analyzer" class="app-view active" role="tabpanel" aria-labelledby="nav-btn-analyzer">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Resume Fit &amp; Intelligence</h1>
+          <p class="page-subtitle">Sub-15ms deterministic ML compatibility scoring, verified skill-gap ranking, and context-grounded AI coaching.</p>
+        </div>
       </div>
 
-      <div class="app-grid">
-        <!-- Left Panel: Input & Resume Ingestion -->
-        <section class="card">
-          <div class="card-title">
-            <span>Candidate & Job Specification</span>
-          </div>
-          <div class="card-subtitle">Input your career profile and the target job description to run real-time analysis.</div>
+      <!-- Demonstration Presets Bar -->
+      <div class="preset-chips-bar">
+        <span style="font-size: 12px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.02em; margin-right: 4px;">Demo Presets:</span>
+        <button class="preset-chip" onclick="loadPreset('cloud')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>
+          Cloud Platform Engineer (Docker &amp; K8s)
+        </button>
+        <button class="preset-chip" onclick="loadPreset('fullstack')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          Full-Stack Python Engineer
+        </button>
+        <button class="preset-chip" onclick="loadPreset('junior')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          Junior Developer (Skill Gap Demo)
+        </button>
+      </div>
 
-          <!-- Mode Tabs -->
-          <div class="tabs-nav">
-            <button class="tab-btn active" id="tab-text" onclick="switchMode('text')">Text Input</button>
-            <button class="tab-btn" id="tab-file" onclick="switchMode('file')">Upload File (PDF/DOCX)</button>
-          </div>
-
-          <!-- Presets -->
-          <div class="presets-container">
-            <span class="presets-label">Quick-Fill Demonstration Profiles:</span>
-            <div class="preset-chips">
-              <button class="preset-chip" onclick="loadPreset('cloud')">⚡ Cloud Architect (AWS & ECS)</button>
-              <button class="preset-chip" onclick="loadPreset('fullstack')">⚡ Full-Stack Python Engineer</button>
-              <button class="preset-chip" onclick="loadPreset('junior')">⚡ Junior Developer (Skill Gap)</button>
+      <div class="analyzer-grid">
+        <!-- Left Panel: Input & Ingestion Workstation -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Candidate &amp; Role Inputs</h2>
+              <div class="card-subtitle">Provide your career background and target job specification.</div>
             </div>
+          </div>
+
+          <!-- Mode Segmented Switcher -->
+          <div class="mode-segmented">
+            <button class="mode-btn active" id="tab-text" onclick="switchMode('text')">Text Input</button>
+            <button class="mode-btn" id="tab-file" onclick="switchMode('file')">Upload Resume File</button>
           </div>
 
           <!-- File Upload Dropzone -->
           <div id="file-input-section" style="display: none;">
-            <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-upload').click()">
-              <h4 id="file-label" style="font-size: 0.95rem; margin-bottom: 0.25rem;">Click or Drag & Drop Resume File</h4>
-              <p style="font-size: 0.78rem; color: var(--text-muted);">Supports verified PDF, DOCX, or TXT documents (Max 10MB)</p>
+            <div class="file-dropzone" id="drop-zone" onclick="document.getElementById('file-upload').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <div class="dropzone-title" id="file-label">Click or Drag &amp; Drop Resume File</div>
+              <div class="dropzone-desc">Verified PDF, DOCX, or TXT documents (Max 10MB)</div>
               <input type="file" id="file-upload" accept=".pdf,.docx,.txt" style="display: none;" onchange="handleFileSelect(this)">
             </div>
           </div>
 
-          <!-- Resume Text -->
+          <!-- Resume Textarea Input -->
           <div class="form-group" id="text-input-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-              <label for="resume-text" style="margin-bottom: 0;">Resume / Career Profile Experience</label>
-              <button class="btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.725rem;" onclick="loadSavedProfileIntoResume()">Load from My Profile</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label class="form-label" for="resume-text">Resume / Career Profile</label>
+              <button class="btn btn-sm btn-ghost" style="color: var(--accent); padding: 0;" onclick="loadSavedProfileIntoResume()">
+                Load from My Profile
+              </button>
             </div>
-            <textarea id="resume-text" rows="6" placeholder="Paste your resume content, certifications, work history, and tools here..."></textarea>
+            <textarea id="resume-text" rows="6" placeholder="Paste your resume content, technical work history, certifications, and tools..."></textarea>
           </div>
 
-          <!-- Target Job Role & Company -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.5rem;">
+          <!-- Target Job Title & Company -->
+          <div class="form-row">
             <div class="form-group">
-              <label for="job-title-input">Target Job Title</label>
+              <label class="form-label" for="job-title-input">Target Job Title</label>
               <input type="text" id="job-title-input" placeholder="e.g. Senior Cloud Engineer">
             </div>
             <div class="form-group">
-              <label for="job-company-input">Target Company</label>
+              <label class="form-label" for="job-company-input">Target Company</label>
               <input type="text" id="job-company-input" placeholder="e.g. Stripe">
             </div>
           </div>
 
           <!-- Job Description -->
           <div class="form-group">
-            <label for="job-desc">Target Job Description & Requirements</label>
-            <textarea id="job-desc" rows="5" placeholder="Paste the target job description or requirements..."></textarea>
+            <label class="form-label" for="job-desc">Target Job Description &amp; Requirements</label>
+            <textarea id="job-desc" rows="5" placeholder="Paste the job description or role requirements..."></textarea>
           </div>
 
-          <!-- Optional Job Skills -->
+          <!-- Key Skills -->
           <div class="form-group">
-            <label for="job-skills">Required Key Skills (Comma-separated)</label>
-            <input type="text" id="job-skills" placeholder="e.g. Python, FastAPI, AWS, ECS, MySQL, Redis, Docker, Terraform">
+            <label class="form-label" for="job-skills">Required Skills (Comma-separated)</label>
+            <input type="text" id="job-skills" placeholder="e.g. Python, FastAPI, Docker, Kubernetes, MySQL, Redis, Linux, Terraform">
           </div>
 
-          <!-- Submit Button -->
-          <button class="btn-primary" id="analyze-btn" onclick="runAnalysis()">
-            <span class="spinner" id="btn-spinner"></span>
-            <span id="btn-text">Analyze Fit & Readiness</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="9 18 15 12 9 6"></polyline>
+          <!-- Primary Submit Action -->
+          <button class="btn btn-primary" id="analyze-btn" style="width: 100%; padding: 11px; font-size: 14px; margin-top: 4px;" onclick="runAnalysis()">
+            <span class="spinner" id="btn-spinner" style="display: none;"></span>
+            <span id="btn-text">Analyze Fit &amp; Readiness</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
           </button>
 
-          <!-- 1-Click Track in Kanban -->
-          <button class="btn-secondary" id="track-job-btn" style="width: 100%; margin-top: 0.75rem; justify-content: center; display: none;" onclick="trackAnalyzedJobInKanban()">
-            📌 Track This Role in Applications Kanban
+          <!-- 1-Click Track in Pipeline -->
+          <button class="btn btn-secondary" id="track-job-btn" style="width: 100%; margin-top: 10px; display: none;" onclick="trackAnalyzedJobInKanban()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Track This Role in Pipeline
           </button>
-        </section>
+        </div>
 
-        <!-- Right Panel: Intelligence Dashboard -->
-        <section class="card" id="results-panel">
-          <div class="card-title">
-            <span>Compatibility & Fit Dashboard</span>
-            <span class="badge green" id="result-status-badge">Ready for Analysis</span>
-          </div>
-          <div class="card-subtitle">Real-time inference generated by RandomForestRegressor and LLM advisor.</div>
-
-          <!-- Score Hero Block -->
-          <div class="score-hero">
-            <div class="score-dial">
+        <!-- Right Panel: Intelligence Canvas -->
+        <div>
+          <!-- Score Gauge Hero Block -->
+          <div class="score-overview-card">
+            <div class="score-dial-wrap">
               <svg viewBox="0 0 100 100">
-                <circle class="dial-bg" cx="50" cy="50" r="45"></circle>
-                <circle class="dial-fill" id="score-circle" cx="50" cy="50" r="45"></circle>
+                <circle class="dial-track" cx="50" cy="50" r="45"></circle>
+                <circle class="dial-progress" id="score-circle" cx="50" cy="50" r="45"></circle>
               </svg>
-              <div class="score-number" id="score-text">--</div>
+              <div class="score-display-val" id="score-text">--</div>
             </div>
-            <div class="score-details">
-              <h3 id="verdict-title">Awaiting Input</h3>
-              <p id="verdict-desc">Submit your resume and role requirements to calculate alignment.</p>
-              <div class="meta-badges">
-                <span class="badge purple" id="model-badge">Model: v1.0.0</span>
+            <div class="score-meta-info">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <h3 id="verdict-title" style="margin-bottom: 0;">Awaiting Input</h3>
+                <span class="badge" id="result-status-badge">Ready</span>
+              </div>
+              <p id="verdict-desc">Submit your candidate profile and target requirements to calculate alignment.</p>
+              <div class="meta-tags-row">
+                <span class="badge" id="model-badge">Model: v1.0.0</span>
                 <span class="badge" id="latency-badge">Latency: -- ms</span>
               </div>
             </div>
           </div>
 
-          <!-- Matched Skills -->
-          <div class="skills-block">
-            <h4>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-              Matched Skills (<span id="matched-count">0</span>)
-            </h4>
-            <div class="pill-grid" id="matched-skills-container">
-              <span style="color: var(--text-dim); font-size: 0.85rem;">No skills analyzed yet.</span>
+          <!-- Skills Comparison (Matched vs Gaps) -->
+          <div class="skills-comparison-grid">
+            <!-- Matched Skills -->
+            <div class="skill-list-card">
+              <div class="skill-list-head">
+                <span style="color: var(--success-text);">Matched Competencies</span>
+                <span class="badge badge-success" id="matched-count">0</span>
+              </div>
+              <div class="skill-pill-wrap" id="matched-skills-container">
+                <span style="color: var(--text-tertiary); font-size: 13px;">No skills analyzed yet.</span>
+              </div>
+            </div>
+
+            <!-- Missing Skill Gaps -->
+            <div class="skill-list-card">
+              <div class="skill-list-head">
+                <span style="color: var(--warning-text);">Identified Skill Gaps</span>
+                <span class="badge badge-warning" id="gap-count">0</span>
+              </div>
+              <div class="skill-pill-wrap" id="missing-skills-container">
+                <span style="color: var(--text-tertiary); font-size: 13px;">No gaps detected yet.</span>
+              </div>
             </div>
           </div>
 
-          <!-- Missing Skills Gap -->
-          <div class="skills-block">
-            <h4>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-              </svg>
-              Identified Skill Gaps (<span id="gap-count">0</span>)
-            </h4>
-            <div class="pill-grid" id="missing-skills-container">
-              <span style="color: var(--text-dim); font-size: 0.85rem;">No gaps detected yet.</span>
+          <!-- Deep-Dive Intelligence Workspace -->
+          <div class="card" style="margin-top: var(--space-4);">
+            <div class="deepdive-nav-tabs">
+              <button class="deepdive-tab-btn active" id="dd-tab-recruiter" onclick="switchDeepDiveTab('recruiter')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                AI Recruiter Guidance
+              </button>
+              <button class="deepdive-tab-btn" id="dd-tab-interview" onclick="switchDeepDiveTab('interview')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="12 8 8 12 12 16 16 12 12 8"></polygon></svg>
+                Interview Preparation
+              </button>
+              <button class="deepdive-tab-btn" id="dd-tab-rag" onclick="switchDeepDiveTab('rag')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                Document Knowledge (RAG)
+              </button>
+            </div>
+
+            <!-- Panel 1: Recruiter AI Guidance -->
+            <div class="deepdive-panel active" id="dd-panel-recruiter">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Recruiter Synthesis</span>
+                <span class="badge badge-purple" id="ai-verdict-badge">Verdict</span>
+              </div>
+              <p id="guidance-summary" style="font-size: 14px; line-height: 1.5; color: var(--text-primary); margin-bottom: var(--space-4);">
+                Summary overview will appear after running an evaluation.
+              </p>
+
+              <div style="margin-bottom: var(--space-3);">
+                <div style="font-size: 12px; font-weight: 600; color: var(--success-text); text-transform: uppercase; margin-bottom: 6px;">Verified Strengths:</div>
+                <ul id="guidance-strengths" style="padding-left: 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.5;"></ul>
+              </div>
+
+              <div>
+                <div style="font-size: 12px; font-weight: 600; color: var(--warning-text); text-transform: uppercase; margin-bottom: 6px;">Targeted Growth Areas:</div>
+                <ul id="guidance-growth" style="padding-left: 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.5;"></ul>
+              </div>
+            </div>
+
+            <!-- Panel 2: Tailored Interview Prep -->
+            <div class="deepdive-panel" id="dd-panel-interview">
+              <button class="btn btn-secondary" id="generate-prep-btn" style="width: 100%; margin-bottom: var(--space-4);" onclick="generateInterviewPrep()">
+                <span class="spinner" id="prep-spinner" style="display: none;"></span>
+                <span id="prep-btn-text">Generate Tailored Interview Questions</span>
+              </button>
+
+              <div id="interview-prep-results" style="display: none;">
+                <div style="font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; margin-bottom: 8px;">Technical Focus Questions:</div>
+                <div id="tech-questions-list"></div>
+
+                <div style="font-size: 12px; font-weight: 600; color: var(--purple-text); text-transform: uppercase; margin-top: 16px; margin-bottom: 8px;">Behavioral STAR Scenarios:</div>
+                <div id="behavioral-questions-list"></div>
+
+                <div style="font-size: 12px; font-weight: 600; color: var(--success-text); text-transform: uppercase; margin-top: 16px; margin-bottom: 8px;">Preparation Recommendations:</div>
+                <ul id="prep-tips-list" style="padding-left: 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.5;"></ul>
+              </div>
+            </div>
+
+            <!-- Panel 3: Document RAG Intelligence -->
+            <div class="deepdive-panel" id="dd-panel-rag">
+              <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: var(--space-3);">
+                Conversational semantic vector search over candidate documents with exact citations.
+              </p>
+              <div class="rag-search-row">
+                <input type="text" id="rag-query-input" placeholder="e.g. What cloud certifications does the candidate hold?">
+                <button class="btn btn-primary" onclick="askRAG()">Query</button>
+              </div>
+              <div id="rag-response-container"></div>
             </div>
           </div>
-
-          <!-- AI Guidance Box -->
-          <div class="guidance-box" id="ai-guidance-box" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
-              <h5 style="margin-bottom: 0;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-                AI Recruiter Intelligence
-              </h5>
-              <span class="badge purple" id="ai-verdict-badge">Verdict</span>
-            </div>
-            <p id="guidance-summary" style="margin-bottom: 0.75rem;">Summary overview will appear here...</p>
-            
-            <div id="ai-strengths-container" style="margin-bottom: 0.6rem;">
-              <strong style="font-size: 0.82rem; color: var(--text-main);">Verified Strengths:</strong>
-              <ul class="guidance-list" id="guidance-strengths"></ul>
-            </div>
-
-            <div id="ai-growth-container" style="margin-bottom: 0.75rem;">
-              <strong style="font-size: 0.82rem; color: #f59e0b;">Targeted Areas for Growth:</strong>
-              <ul class="guidance-list" id="guidance-growth"></ul>
-            </div>
-
-            <!-- Tailored Interview Prep Trigger -->
-            <button class="prep-btn" id="generate-prep-btn" onclick="generateInterviewPrep()">
-              <span class="spinner" id="prep-spinner" style="display: none;"></span>
-              <span id="prep-btn-text">🎯 Generate Tailored Interview Prep & Questions</span>
-            </button>
-
-            <!-- Interview Prep Container -->
-            <div id="interview-prep-results" style="display: none; margin-top: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
-              <h5 style="color: #a5b4fc; font-size: 0.9rem; margin-top: 0.5rem; margin-bottom: 0.25rem;">Technical Interview Questions:</h5>
-              <div id="tech-questions-list"></div>
-
-              <h5 style="color: #cbd5e1; font-size: 0.9rem; margin-top: 1rem; margin-bottom: 0.25rem;">Targeted Behavioral Prompts (STAR Method):</h5>
-              <div id="behavioral-questions-list"></div>
-
-              <h5 style="color: #10b981; font-size: 0.9rem; margin-top: 1rem; margin-bottom: 0.25rem;">Tactical Preparation Recommendations:</h5>
-              <ul class="guidance-list" id="prep-tips-list"></ul>
-            </div>
-          </div>
-
-          <!-- Interactive RAG Search -->
-          <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-subtle); padding-top: 1.5rem;">
-            <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;">🔍 Ask Questions Over This Resume (RAG)</h4>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Semantic vector search with source citations powered by the RAG pipeline.</p>
-            <div class="rag-search-box">
-              <input type="text" id="rag-query-input" placeholder="e.g. What cloud certifications does the candidate hold?">
-              <button class="btn-primary" style="width: auto; padding: 0.75rem 1.25rem;" onclick="askRAG()">Query</button>
-            </div>
-            <div id="rag-response-container"></div>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <!-- ========================================================================= -->
-    <!-- VIEW 2: JOB APPLICATIONS KANBAN TRACKER                                  -->
-    <!-- ========================================================================= -->
-    <div id="view-kanban" class="app-view">
-      <!-- Summary KPI Row -->
-      <div class="kanban-stats">
-        <div class="stat-card">
-          <div class="stat-label">Total Applications</div>
-          <div class="stat-val" id="stat-total">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Active Screening</div>
-          <div class="stat-val" style="color: #60a5fa;" id="stat-screening">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Interviewing</div>
-          <div class="stat-val" style="color: #c084fc;" id="stat-interviewing">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Offers Received</div>
-          <div class="stat-val" style="color: #34d399;" id="stat-offers">0</div>
         </div>
       </div>
+    </section>
 
-      <div class="kanban-header-bar">
+    <!-- ========================================================================= -->
+    <!-- VIEW 2: APPLICATIONS PIPELINE KANBAN                                     -->
+    <!-- ========================================================================= -->
+    <section id="view-kanban" class="app-view" role="tabpanel" aria-labelledby="nav-btn-kanban">
+      <div class="page-header">
         <div>
-          <h2 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700;">Job Applications Pipeline</h2>
-          <p style="color: var(--text-muted); font-size: 0.875rem;">Track candidate applications across all stages with live status updates.</p>
+          <h1 class="page-title">Applications Pipeline</h1>
+          <p class="page-subtitle">Tactile drag-and-drop tracking for your ongoing job search stages.</p>
         </div>
-        <button class="btn-primary" style="width: auto;" onclick="openAddJobModal()">
-          + Add Application
+        <button class="btn btn-primary" onclick="openAddJobModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Add Application
         </button>
       </div>
 
+      <!-- Pipeline Summary KPIs -->
+      <div class="pipeline-metrics-row">
+        <div class="metric-stat-card">
+          <div class="metric-stat-label">Total Applications</div>
+          <div class="metric-stat-value" id="stat-total">0</div>
+        </div>
+        <div class="metric-stat-card">
+          <div class="metric-stat-label">Active Screening</div>
+          <div class="metric-stat-value" style="color: var(--accent);" id="stat-screening">0</div>
+        </div>
+        <div class="metric-stat-card">
+          <div class="metric-stat-label">Interviewing</div>
+          <div class="metric-stat-value" style="color: var(--purple-text);" id="stat-interviewing">0</div>
+        </div>
+        <div class="metric-stat-card">
+          <div class="metric-stat-label">Offers Received</div>
+          <div class="metric-stat-value" style="color: var(--success-text);" id="stat-offers">0</div>
+        </div>
+      </div>
+
       <!-- 5-Column Kanban Board -->
-      <div class="kanban-grid">
+      <div class="pipeline-grid">
         <!-- Col 1: Applied -->
-        <div class="kanban-col">
-          <div class="col-header">
-            <span class="col-title" style="color: #93c5fd;">📩 Applied</span>
-            <span class="col-count" id="count-applied">0</span>
+        <div class="pipeline-column" data-stage="applied">
+          <div class="pipeline-col-header">
+            <span class="pipeline-col-title" style="color: #93c5fd;">Applied</span>
+            <span class="pipeline-col-count" id="count-applied">0</span>
           </div>
-          <div class="col-cards" id="col-applied"></div>
+          <div class="pipeline-col-cards" id="col-applied"></div>
         </div>
 
         <!-- Col 2: Screening -->
-        <div class="kanban-col">
-          <div class="col-header">
-            <span class="col-title" style="color: #818cf8;">📞 Screening</span>
-            <span class="col-count" id="count-screening">0</span>
+        <div class="pipeline-column" data-stage="screening">
+          <div class="pipeline-col-header">
+            <span class="pipeline-col-title" style="color: #818cf8;">Screening</span>
+            <span class="pipeline-col-count" id="count-screening">0</span>
           </div>
-          <div class="col-cards" id="col-screening"></div>
+          <div class="pipeline-col-cards" id="col-screening"></div>
         </div>
 
         <!-- Col 3: Interviewing -->
-        <div class="kanban-col">
-          <div class="col-header">
-            <span class="col-title" style="color: #c084fc;">💻 Interviewing</span>
-            <span class="col-count" id="count-interviewing">0</span>
+        <div class="pipeline-column" data-stage="interviewing">
+          <div class="pipeline-col-header">
+            <span class="pipeline-col-title" style="color: #c084fc;">Interviewing</span>
+            <span class="pipeline-col-count" id="count-interviewing">0</span>
           </div>
-          <div class="col-cards" id="col-interviewing"></div>
+          <div class="pipeline-col-cards" id="col-interviewing"></div>
         </div>
 
         <!-- Col 4: Offered -->
-        <div class="kanban-col">
-          <div class="col-header">
-            <span class="col-title" style="color: #34d399;">🎉 Offered</span>
-            <span class="col-count" id="count-offered">0</span>
+        <div class="pipeline-column" data-stage="offered">
+          <div class="pipeline-col-header">
+            <span class="pipeline-col-title" style="color: #34d399;">Offered</span>
+            <span class="pipeline-col-count" id="count-offered">0</span>
           </div>
-          <div class="col-cards" id="col-offered"></div>
+          <div class="pipeline-col-cards" id="col-offered"></div>
         </div>
 
-        <!-- Col 5: Rejected / Withdrawn -->
-        <div class="kanban-col">
-          <div class="col-header">
-            <span class="col-title" style="color: #f87171;">📁 Archived / Closed</span>
-            <span class="col-count" id="count-rejected">0</span>
+        <!-- Col 5: Rejected / Closed -->
+        <div class="pipeline-column" data-stage="rejected">
+          <div class="pipeline-col-header">
+            <span class="pipeline-col-title" style="color: #f87171;">Archived / Closed</span>
+            <span class="pipeline-col-count" id="count-rejected">0</span>
           </div>
-          <div class="col-cards" id="col-rejected"></div>
+          <div class="pipeline-col-cards" id="col-rejected"></div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- ========================================================================= -->
-    <!-- VIEW 3: CANDIDATE PROFILE & SKILLS MANAGER                               -->
+    <!-- VIEW 3: PROFILE & SKILLS MANAGER                                         -->
     <!-- ========================================================================= -->
-    <div id="view-profile" class="app-view">
-      <div class="hero-banner" style="margin-bottom: 1.5rem;">
-        <h2>Candidate Profile & <span>Verified Skills</span></h2>
-        <p>Manage your persistent profile headline, experience, and verified technical skill taxonomy.</p>
+    <section id="view-profile" class="app-view" role="tabpanel" aria-labelledby="nav-btn-profile">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Candidate Profile &amp; Verified Skills</h1>
+          <p class="page-subtitle">Maintain your persistent professional identity, target background, and verified competencies.</p>
+        </div>
       </div>
 
-      <div class="profile-grid">
+      <div class="profile-layout-grid">
         <!-- Left: Profile Info -->
         <div class="card">
-          <div class="card-title">Professional Identity</div>
-          <div class="card-subtitle">Keep your target profile updated to auto-fill resume fit evaluations.</div>
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Professional Identity</h2>
+              <div class="card-subtitle">Keep your target profile updated to auto-fill resume fit evaluations.</div>
+            </div>
+          </div>
 
           <form id="profile-form" onsubmit="event.preventDefault(); saveProfile();">
             <div class="form-group">
-              <label for="prof-headline">Professional Headline</label>
-              <input type="text" id="prof-headline" placeholder="e.g. Lead Cloud Architect & Backend Systems Engineer">
+              <label class="form-label" for="prof-headline">Professional Headline</label>
+              <input type="text" id="prof-headline" placeholder="e.g. Lead Cloud Architect &amp; Backend Systems Engineer">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-row">
               <div class="form-group">
-                <label for="prof-location">Location</label>
+                <label class="form-label" for="prof-location">Location</label>
                 <input type="text" id="prof-location" placeholder="e.g. San Francisco, CA (or Remote)">
               </div>
               <div class="form-group">
-                <label for="prof-yoe">Years of Experience</label>
+                <label class="form-label" for="prof-yoe">Years of Experience</label>
                 <input type="number" step="0.5" id="prof-yoe" placeholder="7">
               </div>
             </div>
 
             <div class="form-group">
-              <label for="prof-summary">Career Summary & Core Competencies</label>
-              <textarea id="prof-summary" rows="5" placeholder="Highlight major achievements, architectural leadership, and focus areas..."></textarea>
+              <label class="form-label" for="prof-summary">Career Summary &amp; Competencies</label>
+              <textarea id="prof-summary" rows="5" placeholder="Highlight major achievements, architectural leadership, and core strengths..."></textarea>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-row">
               <div class="form-group">
-                <label for="prof-linkedin">LinkedIn URL</label>
+                <label class="form-label" for="prof-linkedin">LinkedIn Profile URL</label>
                 <input type="text" id="prof-linkedin" placeholder="https://linkedin.com/in/username">
               </div>
               <div class="form-group">
-                <label for="prof-github">GitHub URL</label>
+                <label class="form-label" for="prof-github">GitHub Profile URL</label>
                 <input type="text" id="prof-github" placeholder="https://github.com/username">
               </div>
             </div>
 
-            <button type="submit" class="btn-primary" id="save-profile-btn" style="margin-top: 0.5rem;">
+            <button type="submit" class="btn btn-primary" id="save-profile-btn" style="margin-top: 6px;">
               Save Profile Changes
             </button>
           </form>
         </div>
 
-        <!-- Right: Skills Inventory -->
+        <!-- Right: Skills Taxonomy -->
         <div class="card">
-          <div class="card-title">
-            <span>Verified Skills Taxonomy</span>
-            <span class="badge purple" id="my-skills-count">0 Skills</span>
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Verified Skills Taxonomy</h2>
+              <div class="card-subtitle">Associate technical skills with verified proficiency levels.</div>
+            </div>
+            <span class="badge badge-purple" id="my-skills-count">0 Skills</span>
           </div>
-          <div class="card-subtitle">Associate technical skills with your profile along with verified proficiency levels.</div>
 
           <!-- Add Skill Form -->
-          <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem;">
-            <h5 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.6rem;">+ Add Skill to Profile</h5>
-            <div style="display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 0.5rem; margin-bottom: 0.6rem;">
-              <input type="text" id="new-skill-name" placeholder="Skill (e.g. Kubernetes, AWS, FastAPI)">
+          <div style="background: var(--surface-inset); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-4);">
+            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">+ Attach New Skill Tag</div>
+            <div style="display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: var(--space-2); margin-bottom: var(--space-2);">
+              <input type="text" id="new-skill-name" placeholder="Skill (e.g. Kubernetes, Docker, FastAPI)">
               <select id="new-skill-prof">
                 <option value="beginner">Beginner</option>
                 <option value="intermediate" selected>Intermediate</option>
@@ -1429,77 +499,76 @@
               </select>
               <input type="number" id="new-skill-yoe" step="0.5" placeholder="Years" value="2">
             </div>
-            <button class="btn-primary" style="padding: 0.55rem; font-size: 0.825rem;" onclick="addSkillToProfile()">
+            <button class="btn btn-sm btn-primary" style="width: 100%; margin-top: 4px;" onclick="addSkillToProfile()">
               Add Skill Tag
             </button>
           </div>
 
           <!-- Active Skills Grid -->
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 400px; overflow-y: auto;" id="my-skills-list">
-            <span style="color: var(--text-dim); font-size: 0.85rem;">No skills attached yet. Add your first skill above!</span>
+          <div style="display: flex; flex-direction: column; gap: var(--space-2); max-height: 420px; overflow-y: auto;" id="my-skills-list">
+            <span style="color: var(--text-tertiary); font-size: 13px;">No skills attached yet. Add your first skill above!</span>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- ========================================================================= -->
-    <!-- VIEW 4: DOCUMENT LIBRARY & MANAGER                                       -->
+    <!-- VIEW 4: DOCUMENT LIBRARY                                                 -->
     <!-- ========================================================================= -->
-    <div id="view-documents" class="app-view">
-      <div class="hero-banner" style="margin-bottom: 1.5rem;">
-        <h2>Candidate <span>Document Library</span></h2>
-        <p>Manage uploaded resumes, cover letters, and transcripts. Review text extraction status and RAG vector indexing.</p>
-      </div>
-
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-          <div>
-            <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700;">Uploaded Career Documents</h3>
-            <span style="color: var(--text-muted); font-size: 0.85rem;">All documents are encrypted and tenant-isolated by user ID.</span>
-          </div>
-          <button class="btn-primary" style="width: auto; padding: 0.6rem 1.2rem;" onclick="document.getElementById('library-file-input').click()">
-            + Upload New Document
+    <section id="view-documents" class="app-view" role="tabpanel" aria-labelledby="nav-btn-documents">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Candidate Document Library</h1>
+          <p class="page-subtitle">Manage uploaded resumes and career assets with tenant-isolated RAG vector indexing.</p>
+        </div>
+        <div>
+          <button class="btn btn-primary" onclick="document.getElementById('library-file-input').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Upload New Document
           </button>
           <input type="file" id="library-file-input" accept=".pdf,.docx,.txt" style="display: none;" onchange="handleLibraryUpload(this)">
         </div>
+      </div>
 
-        <table class="data-table">
+      <div class="data-table-container">
+        <table class="apple-table">
           <thead>
             <tr>
               <th>File Name</th>
-              <th>Type</th>
+              <th>Format</th>
               <th>Size</th>
-              <th>Status</th>
-              <th>RAG Index</th>
-              <th>Uploaded At</th>
+              <th>Ingestion</th>
+              <th>Vector Index</th>
+              <th>Uploaded Date</th>
               <th style="text-align: right;">Actions</th>
             </tr>
           </thead>
           <tbody id="documents-table-body">
             <tr>
-              <td colspan="7" style="text-align: center; color: var(--text-dim);">Loading documents...</td>
+              <td colspan="7" style="text-align: center; color: var(--text-tertiary); padding: 24px;">Loading documents...</td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
 
     <!-- ========================================================================= -->
     <!-- VIEW 5: ANALYSIS HISTORY & AUDIT LOG                                     -->
     <!-- ========================================================================= -->
-    <div id="view-history" class="app-view">
-      <div class="hero-banner" style="margin-bottom: 1.5rem;">
-        <h2>Historical <span>Fit Analyses</span></h2>
-        <p>Review your historical compatibility scores, skill overlaps, and reload past AI recruiter advice with one click.</p>
+    <section id="view-history" class="app-view" role="tabpanel" aria-labelledby="nav-btn-history">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Historical Fit Analyses</h1>
+          <p class="page-subtitle">Audit trail of past compatibility evaluations with instant one-click reload.</p>
+        </div>
+        <button class="btn btn-secondary" onclick="loadAnalysisHistory()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          Refresh History
+        </button>
       </div>
 
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-          <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700;">Past Analysis History</h3>
-          <button class="btn-secondary" onclick="loadAnalysisHistory()">Refresh History</button>
-        </div>
-
-        <table class="data-table">
+      <div class="data-table-container">
+        <table class="apple-table">
           <thead>
             <tr>
               <th>ID</th>
@@ -1514,138 +583,136 @@
           </thead>
           <tbody id="history-table-body">
             <tr>
-              <td colspan="8" style="text-align: center; color: var(--text-dim);">Loading history...</td>
+              <td colspan="8" style="text-align: center; color: var(--text-tertiary); padding: 24px;">Loading history...</td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
 
   </main>
 
   <!-- ========================================================================= -->
-  <!-- MODAL 1: SYSTEM HEALTH & METRICS                                         -->
+  <!-- MODALS & SHEETS                                                          -->
   <!-- ========================================================================= -->
-  <div class="modal-backdrop" id="modal-metrics">
-    <div class="modal-box">
-      <div class="modal-head">
-        <h3>⚡ Platform System Metrics</h3>
-        <button class="close-btn" onclick="closeModal('modal-metrics')">&times;</button>
+
+  <!-- Modal 1: Platform Diagnostics -->
+  <div class="modal-backdrop" id="modal-metrics" role="dialog" aria-modal="true" aria-labelledby="modal-metrics-title">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-metrics-title">Platform Diagnostics</h2>
+        <button class="modal-close-btn" onclick="UI.closeModal('modal-metrics')" aria-label="Close dialog">&times;</button>
       </div>
-      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-        <div class="skill-manager-pill">
-          <span>Memory RSS Usage:</span>
-          <strong id="metric-ram" style="color: #34d399;">-- MB</strong>
+      <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+        <div class="skill-tag-manager-item">
+          <span style="color: var(--text-secondary); font-size: 13px;">Memory RSS Usage</span>
+          <strong id="metric-ram" style="color: var(--success-text);">-- MB</strong>
         </div>
-        <div class="skill-manager-pill">
-          <span>Python Runtime:</span>
-          <strong id="metric-python">--</strong>
+        <div class="skill-tag-manager-item">
+          <span style="color: var(--text-secondary); font-size: 13px;">Python Runtime</span>
+          <strong id="metric-python" style="color: var(--text-primary);">--</strong>
         </div>
-        <div class="skill-manager-pill">
-          <span>Active Worker Threads:</span>
-          <strong id="metric-threads">--</strong>
+        <div class="skill-tag-manager-item">
+          <span style="color: var(--text-secondary); font-size: 13px;">Active Worker Threads</span>
+          <strong id="metric-threads" style="color: var(--text-primary);">--</strong>
         </div>
-        <div class="skill-manager-pill">
-          <span>Database Connectivity:</span>
-          <strong id="metric-db" style="color: #34d399;">--</strong>
+        <div class="skill-tag-manager-item">
+          <span style="color: var(--text-secondary); font-size: 13px;">Database Connectivity</span>
+          <strong id="metric-db" style="color: var(--success-text);">--</strong>
         </div>
-        <div class="skill-manager-pill">
-          <span>Active ML Model:</span>
-          <strong id="metric-model" style="color: #c084fc;">--</strong>
+        <div class="skill-tag-manager-item">
+          <span style="color: var(--text-secondary); font-size: 13px;">Active ML Model</span>
+          <strong id="metric-model" style="color: var(--purple-text);">--</strong>
         </div>
-        <div class="skill-manager-pill">
-          <span>LLM Provider:</span>
-          <strong id="metric-llm" style="color: #60a5fa;">--</strong>
+        <div class="skill-tag-manager-item">
+          <span style="color: var(--text-secondary); font-size: 13px;">LLM Provider</span>
+          <strong id="metric-llm" style="color: var(--accent);">--</strong>
         </div>
       </div>
-      <button class="btn-secondary" style="width: 100%; margin-top: 1.25rem; justify-content: center;" onclick="closeModal('modal-metrics')">
+      <button class="btn btn-secondary" style="width: 100%; margin-top: var(--space-4);" onclick="UI.closeModal('modal-metrics')">
         Close Diagnostics
       </button>
     </div>
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- MODAL 2: USER ACCOUNT & AUTHENTICATION                                   -->
-  <!-- ========================================================================= -->
-  <div class="modal-backdrop" id="modal-auth">
-    <div class="modal-box">
-      <div class="modal-head">
-        <h3>👤 User Account & Authentication</h3>
-        <button class="close-btn" onclick="closeModal('modal-auth')">&times;</button>
-      </div>
-      
-      <div style="background: rgba(0, 0, 0, 0.25); padding: 0.85rem; border-radius: 10px; margin-bottom: 1.25rem; font-size: 0.825rem;">
-        <div style="color: var(--text-dim); margin-bottom: 0.25rem;">Active Authentication Session:</div>
-        <div id="auth-current-email" style="font-weight: 700; color: #a5b4fc;">--</div>
+  <!-- Modal 2: User Account & Authentication -->
+  <div class="modal-backdrop" id="modal-auth" role="dialog" aria-modal="true" aria-labelledby="modal-auth-title">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-auth-title">Candidate Account</h2>
+        <button class="modal-close-btn" onclick="UI.closeModal('modal-auth')" aria-label="Close dialog">&times;</button>
       </div>
 
-      <div class="tabs-nav" style="margin-bottom: 1rem;">
-        <button class="tab-btn active" id="auth-tab-login" onclick="switchAuthTab('login')">Sign In</button>
-        <button class="tab-btn" id="auth-tab-register" onclick="switchAuthTab('register')">Register New</button>
+      <div style="background: var(--surface-inset); padding: 12px; border-radius: var(--radius-md); margin-bottom: var(--space-4); font-size: 13px;">
+        <div style="color: var(--text-tertiary); margin-bottom: 2px;">Active Session:</div>
+        <div id="auth-current-email" style="font-weight: 600; color: var(--accent);">--</div>
       </div>
 
-      <!-- Login Form -->
+      <div class="mode-segmented" style="margin-bottom: var(--space-4);">
+        <button class="mode-btn active" id="auth-tab-login" onclick="switchAuthTab('login')">Sign In</button>
+        <button class="mode-btn" id="auth-tab-register" onclick="switchAuthTab('register')">Register New</button>
+      </div>
+
+      <!-- Sign In Form -->
       <form id="form-login" onsubmit="event.preventDefault(); submitLogin();">
         <div class="form-group">
-          <label>Email Address</label>
+          <label class="form-label" for="login-email">Email Address</label>
           <input type="email" id="login-email" required placeholder="alex@example.com">
         </div>
         <div class="form-group">
-          <label>Password</label>
+          <label class="form-label" for="login-pass">Password</label>
           <input type="password" id="login-pass" required placeholder="••••••••">
         </div>
-        <button type="submit" class="btn-primary" style="margin-top: 0.5rem;">Sign In</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-2);">Sign In</button>
       </form>
 
       <!-- Register Form -->
       <form id="form-register" style="display: none;" onsubmit="event.preventDefault(); submitRegister();">
         <div class="form-group">
-          <label>Full Name</label>
+          <label class="form-label" for="reg-name">Full Name</label>
           <input type="text" id="reg-name" required placeholder="Jane Doe">
         </div>
         <div class="form-group">
-          <label>Email Address</label>
+          <label class="form-label" for="reg-email">Email Address</label>
           <input type="email" id="reg-email" required placeholder="jane@example.com">
         </div>
         <div class="form-group">
-          <label>Password (Min 8 chars, 1 uppercase, 1 digit)</label>
+          <label class="form-label" for="reg-pass">Password (Min 8 chars, 1 uppercase, 1 digit)</label>
           <input type="password" id="reg-pass" required placeholder="SecurePassword123!">
         </div>
-        <button type="submit" class="btn-primary" style="margin-top: 0.5rem;">Create Account</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-2);">Create Account</button>
       </form>
 
-      <button class="btn-secondary" style="width: 100%; margin-top: 0.75rem; justify-content: center;" onclick="resetToGuestSession()">
-        ⚡ Generate Fresh Guest Demo Account
+      <button class="btn btn-ghost" style="width: 100%; margin-top: var(--space-3);" onclick="resetToGuestSession()">
+        Generate Fresh Guest Demo Account
       </button>
     </div>
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- MODAL 3: ADD TRACKED JOB APPLICATION                                     -->
-  <!-- ========================================================================= -->
-  <div class="modal-backdrop" id="modal-add-job">
-    <div class="modal-box">
-      <div class="modal-head">
-        <h3>+ Track New Job Application</h3>
-        <button class="close-btn" onclick="closeModal('modal-add-job')">&times;</button>
+  <!-- Modal 3: Add Job Application -->
+  <div class="modal-backdrop" id="modal-add-job" role="dialog" aria-modal="true" aria-labelledby="modal-add-job-title">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-add-job-title">Track Job Application</h2>
+        <button class="modal-close-btn" onclick="UI.closeModal('modal-add-job')" aria-label="Close dialog">&times;</button>
       </div>
 
       <form id="form-add-job" onsubmit="event.preventDefault(); submitAddJobApplication();">
         <div class="form-group">
-          <label>Job Title *</label>
+          <label class="form-label" for="add-job-title">Job Title *</label>
           <input type="text" id="add-job-title" required placeholder="e.g. Senior Backend Engineer">
         </div>
         <div class="form-group">
-          <label>Company *</label>
+          <label class="form-label" for="add-job-company">Company *</label>
           <input type="text" id="add-job-company" required placeholder="e.g. Datadog">
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <div class="form-row">
           <div class="form-group">
-            <label>Location</label>
+            <label class="form-label" for="add-job-location">Location</label>
             <input type="text" id="add-job-location" placeholder="Remote">
           </div>
           <div class="form-group">
-            <label>Initial Pipeline Stage</label>
+            <label class="form-label" for="add-job-status">Initial Pipeline Stage</label>
             <select id="add-job-status">
               <option value="applied" selected>Applied</option>
               <option value="screening">Screening</option>
@@ -1655,1242 +722,36 @@
           </div>
         </div>
         <div class="form-group">
-          <label>Notes / Referral Details</label>
+          <label class="form-label" for="add-job-notes">Notes / Referral Details</label>
           <textarea id="add-job-notes" rows="3" placeholder="Referred by Alice on LinkedIn; recruiter screen on Tuesday..."></textarea>
         </div>
-        <button type="submit" class="btn-primary" style="margin-top: 0.5rem;">
-          Save to Kanban Pipeline
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-2);">
+          Save to Pipeline
         </button>
       </form>
     </div>
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- JAVASCRIPT PLATFORM LOGIC                                                -->
-  <!-- ========================================================================= -->
-  <script>
-    // Demo Presets
-    const PRESETS = {
-      cloud: {
-        title: "Senior Cloud Platform Engineer",
-        company: "Stripe",
-        resume: `Alice Smith — Lead Cloud Architect & Backend Systems Engineer
-Experienced in designing, deploying, and maintaining cloud platforms on AWS (ECS, Fargate, S3, RDS, CloudWatch).
-Built robust microservices using Python, FastAPI, and SQLAlchemy.
-Optimized high-concurrency MySQL databases and implemented Redis caching clusters.
-Automated multi-region infrastructure using Terraform and configured CI/CD with Docker and GitHub Actions.
-Certifications: AWS Certified Solutions Architect Professional.`,
-        job: `Senior Cloud Platform Engineer
-We are seeking an experienced Senior Cloud Engineer to manage our microservices infrastructure.
-Requirements:
-- Strong background with Python and FastAPI backend development.
-- Deep expertise in AWS containerized environments (ECS Fargate or Kubernetes).
-- Hands-on experience with MySQL and Redis caching.
-- Infrastructure-as-Code proficiency using Terraform.
-- Familiarity with CI/CD pipelines and Docker.`,
-        skills: "Python, FastAPI, AWS, ECS, MySQL, Redis, Docker, Terraform"
-      },
-      fullstack: {
-        title: "Full-Stack Python Engineer",
-        company: "Vercel",
-        resume: `Bob Davis — Full-Stack Python & React Developer
-5 years building web applications with Python, FastAPI, and Django backends coupled with React TypeScript frontends.
-Extensive experience with PostgreSQL and MySQL database schema design and optimization.
-Containerized development environments with Docker. Familiar with basic AWS deployments (EC2, S3).`,
-        job: `Full-Stack Python Engineer
-Looking for a full-stack engineer proficient in Python, FastAPI, Docker, and frontend web development.
-Experience in MySQL or PostgreSQL and Redis is a major plus.`,
-        skills: "Python, FastAPI, Docker, MySQL, Redis, React"
-      },
-      junior: {
-        title: "Senior Distributed Systems Architect",
-        company: "Snowflake",
-        resume: `Charlie Brown — Junior Software Developer
-Recent graduate with basic computer science foundation. Built academic projects in Java and basic HTML/CSS.
-Passionate about software architecture and eager to learn backend development and cloud computing.`,
-        job: `Senior Distributed Systems Architect
-Must possess 8+ years experience architecting high-scale distributed systems in Python, Go, or C++.
-Expert-level knowledge of AWS, Kubernetes, Redis caching, gRPC, and Kafka distributed streaming.`,
-        skills: "Python, AWS, Kubernetes, Redis, Kafka, gRPC"
-      }
-    };
-
-    let currentUser = null;
-    let authAccessToken = localStorage.getItem('careerai_token') || null;
-    let currentAnalysisId = null;
-    let activeUploadedFile = null;
-
-    // Startup Initialization
-    window.addEventListener('DOMContentLoaded', async () => {
-      loadPreset('cloud');
-      await ensureAuthSession();
-      loadAIStatus();
-      loadKanbanBoard();
-      loadUserProfile();
-      loadUserSkills();
-      loadDocumentsList();
-      loadAnalysisHistory();
-    });
-
-    // -------------------------------------------------------------
-    // NAVIGATION & TAB SWITCHING
-    // -------------------------------------------------------------
-    function switchAppTab(tabId) {
-      document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
-      document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
-
-      const targetView = document.getElementById(`view-${tabId}`);
-      const targetBtn = document.getElementById(`nav-btn-${tabId}`);
-      if (targetView) targetView.classList.add('active');
-      if (targetBtn) targetBtn.classList.add('active');
-
-      // Refresh data on tab navigation
-      if (tabId === 'kanban') loadKanbanBoard();
-      if (tabId === 'profile') { loadUserProfile(); loadUserSkills(); }
-      if (tabId === 'documents') loadDocumentsList();
-      if (tabId === 'history') loadAnalysisHistory();
-    }
-
-    function switchMode(mode) {
-      document.getElementById('tab-text').classList.toggle('active', mode === 'text');
-      document.getElementById('tab-file').classList.toggle('active', mode === 'file');
-      document.getElementById('text-input-section').style.display = mode === 'text' ? 'block' : 'none';
-      document.getElementById('file-input-section').style.display = mode === 'file' ? 'block' : 'none';
-    }
-
-    function loadPreset(key) {
-      const p = PRESETS[key];
-      if (!p) return;
-      document.getElementById('resume-text').value = p.resume;
-      document.getElementById('job-desc').value = p.job;
-      document.getElementById('job-skills').value = p.skills;
-      document.getElementById('job-title-input').value = p.title || '';
-      document.getElementById('job-company-input').value = p.company || '';
-      switchMode('text');
-    }
-
-    function handleFileSelect(input) {
-      if (input.files && input.files[0]) {
-        activeUploadedFile = input.files[0];
-        document.getElementById('file-label').textContent = `Selected: ${activeUploadedFile.name} (${(activeUploadedFile.size / 1024).toFixed(1)} KB)`;
-      }
-    }
-
-    // -------------------------------------------------------------
-    // AUTHENTICATION & USER SESSION
-    // -------------------------------------------------------------
-    async function ensureAuthSession() {
-      if (authAccessToken) {
-        try {
-          const res = await fetch('/api/v1/users/me', {
-            headers: { 'Authorization': `Bearer ${authAccessToken}` }
-          });
-          if (res.ok) {
-            currentUser = await res.json();
-            updateUserPillUI();
-            return authAccessToken;
-          }
-        } catch (e) {}
-      }
-
-      // Fallback: auto-register guest session
-      try {
-        const guestEmail = `guest_${Math.random().toString(36).substring(2, 8)}@example.com`;
-        const res = await fetch('/api/v1/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: guestEmail,
-            password: 'DemoPassword123!',
-            full_name: 'Guest Candidate'
-          })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          authAccessToken = data.tokens.access_token;
-          currentUser = data.user;
-          localStorage.setItem('careerai_token', authAccessToken);
-          updateUserPillUI();
-          return authAccessToken;
-        }
-      } catch (err) {
-        console.warn('Guest registration notice:', err);
-      }
-      return null;
-    }
-
-    function updateUserPillUI() {
-      if (currentUser) {
-        document.getElementById('account-pill-label').textContent = currentUser.full_name || currentUser.email.split('@')[0];
-        document.getElementById('auth-current-email').textContent = `${currentUser.email} (${currentUser.role})`;
-      }
-    }
-
-    async function loadAIStatus() {
-      try {
-        const res = await fetch('/api/v1/ai/status');
-        if (res.ok) {
-          const data = await res.json();
-          const dot = document.getElementById('ai-engine-dot');
-          const label = document.getElementById('ai-engine-label');
-          if (data.is_mock) {
-            dot.style.background = '#94a3b8';
-            label.textContent = `AI: ${data.provider_label}`;
-          } else {
-            dot.style.background = '#10b981';
-            label.textContent = `AI: ${data.provider_label}`;
-          }
-        }
-      } catch (err) {
-        console.warn('Could not fetch AI status:', err);
-      }
-    }
-
-    // -------------------------------------------------------------
-    // ML FIT ANALYSIS & AI RECRUITER ADVISOR
-    // -------------------------------------------------------------
-    async function runAnalysis() {
-      const btn = document.getElementById('analyze-btn');
-      const spinner = document.getElementById('btn-spinner');
-      const btnText = document.getElementById('btn-text');
-
-      btn.disabled = true;
-      spinner.style.display = 'inline-block';
-      btnText.textContent = 'Computing ML Fit...';
-
-      try {
-        const token = await ensureAuthSession();
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        let resumeText = document.getElementById('resume-text').value;
-        const jobDesc = document.getElementById('job-desc').value;
-        const skillsRaw = document.getElementById('job-skills').value;
-        const jobSkills = skillsRaw.split(',').map(s => s.trim()).filter(Boolean);
-
-        // File upload mode
-        if (document.getElementById('tab-file').classList.contains('active') && activeUploadedFile) {
-          btnText.textContent = 'Extracting File...';
-          const formData = new FormData();
-          formData.append('file', activeUploadedFile);
-
-          const upRes = await fetch('/api/v1/documents/upload', {
-            method: 'POST',
-            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-            body: formData
-          });
-
-          if (upRes.ok) {
-            const upData = await upRes.json();
-            fetch(`/api/v1/rag/index/${upData.id}`, {
-              method: 'POST',
-              headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-            }).catch(() => {});
-
-            const mlRes = await fetch('/api/v1/ml/analyze', {
-              method: 'POST',
-              headers,
-              body: JSON.stringify({
-                document_id: upData.id,
-                job_description: jobDesc,
-                job_skills: jobSkills
-              })
-            });
-            const mlData = await mlRes.json();
-            renderResults(mlData, resumeText || activeUploadedFile.name);
-            return;
-          }
-        }
-
-        // Text mode
-        const mlRes = await fetch('/api/v1/ml/analyze', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            resume_text: resumeText,
-            job_description: jobDesc,
-            job_skills: jobSkills
-          })
-        });
-
-        if (!mlRes.ok) {
-          const err = await mlRes.json();
-          alert('Analysis Error: ' + (err.error ? err.error.message : 'Analysis failed'));
-          return;
-        }
-
-        const mlData = await mlRes.json();
-        renderResults(mlData, resumeText);
-
-      } catch (err) {
-        console.error('Analysis error:', err);
-        alert('An unexpected error occurred during ML analysis.');
-      } finally {
-        btn.disabled = false;
-        spinner.style.display = 'none';
-        btnText.textContent = 'Analyze Fit & Readiness';
-      }
-    }
-
-    function renderResults(data, resumeSnippet) {
-      const score = Math.round(data.compatibility_score || 0);
-      document.getElementById('score-text').textContent = score + '%';
-
-      const offset = 283 - (283 * score) / 100;
-      const circle = document.getElementById('score-circle');
-      circle.style.strokeDashoffset = offset;
-
-      if (score >= 80) {
-        circle.style.stroke = 'var(--success)';
-        document.getElementById('verdict-title').textContent = 'Strong Match';
-        document.getElementById('verdict-desc').textContent = 'Excellent candidate fit! Technical requirements align closely with the role.';
-        document.getElementById('result-status-badge').className = 'badge green';
-        document.getElementById('result-status-badge').textContent = 'Highly Ready';
-      } else if (score >= 50) {
-        circle.style.stroke = 'var(--warning)';
-        document.getElementById('verdict-title').textContent = 'Moderate Match';
-        document.getElementById('verdict-desc').textContent = 'Good foundational skills with actionable gaps to bridge before applying.';
-        document.getElementById('result-status-badge').className = 'badge purple';
-        document.getElementById('result-status-badge').textContent = 'Growth Candidate';
-      } else {
-        circle.style.stroke = 'var(--danger)';
-        document.getElementById('verdict-title').textContent = 'Significant Upskilling Needed';
-        document.getElementById('verdict-desc').textContent = 'Several required competencies are missing from the resume profile.';
-        document.getElementById('result-status-badge').className = 'badge';
-        document.getElementById('result-status-badge').textContent = 'Gap Identified';
-      }
-
-      document.getElementById('model-badge').textContent = `Model: ${data.model_version || 'v1.0.0'}`;
-      document.getElementById('latency-badge').textContent = `Latency: ${data.latency_ms || 15} ms`;
-
-      // Render Matched Skills
-      const matchedContainer = document.getElementById('matched-skills-container');
-      matchedContainer.innerHTML = '';
-      const matched = data.matched_skills || [];
-      document.getElementById('matched-count').textContent = matched.length;
-
-      if (matched.length > 0) {
-        matched.forEach(sk => {
-          const pill = document.createElement('span');
-          pill.className = 'skill-pill matched';
-          pill.innerHTML = `✓ ${sk}`;
-          matchedContainer.appendChild(pill);
-        });
-      } else {
-        matchedContainer.innerHTML = '<span style="color: var(--text-dim); font-size: 0.85rem;">No direct matching skills found in description.</span>';
-      }
-
-      // Render Missing Skills Gaps
-      const gapContainer = document.getElementById('missing-skills-container');
-      gapContainer.innerHTML = '';
-      const gaps = data.missing_skills || [];
-      document.getElementById('gap-count').textContent = gaps.length;
-
-      if (gaps.length > 0) {
-        gaps.forEach(g => {
-          const pill = document.createElement('span');
-          pill.className = 'skill-pill gap';
-          const name = typeof g === 'string' ? g : g.skill;
-          const imp = typeof g === 'object' && g.importance ? g.importance : 'medium';
-          pill.innerHTML = `▲ ${name} <span class="gap-priority">${imp}</span>`;
-          gapContainer.appendChild(pill);
-        });
-      } else {
-        gapContainer.innerHTML = '<span style="color: var(--success); font-size: 0.85rem;">Zero critical gaps! Full skill overlap identified.</span>';
-      }
-
-      // Reveal 1-click Kanban Tracker Button
-      document.getElementById('track-job-btn').style.display = 'flex';
-
-      // Load AI Recruiter Explanation
-      currentAnalysisId = data.id;
-      fetchAIExplanation(data.id);
-    }
-
-    async function fetchAIExplanation(analysisId) {
-      const guidanceBox = document.getElementById('ai-guidance-box');
-      guidanceBox.style.display = 'block';
-
-      const summaryEl = document.getElementById('guidance-summary');
-      const strengthsEl = document.getElementById('guidance-strengths');
-      const growthEl = document.getElementById('guidance-growth');
-      const verdictEl = document.getElementById('ai-verdict-badge');
-
-      summaryEl.innerHTML = '<span class="spinner" style="display:inline-block; width:14px; height:14px; margin-right:0.4rem;"></span> Synthesizing AI explanation with active LLM...';
-      strengthsEl.innerHTML = '<li>Analyzing verified competencies...</li>';
-      growthEl.innerHTML = '<li>Evaluating critical skill gaps...</li>';
-      verdictEl.textContent = 'Evaluating';
-
-      try {
-        const token = await ensureAuthSession();
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const res = await fetch(`/api/v1/ai/explain/${analysisId}`, {
-          method: 'POST',
-          headers
-        });
-
-        if (res.ok) {
-          const aiData = await res.json();
-          const exp = aiData.explanation;
-          if (exp) {
-            summaryEl.textContent = exp.summary || 'Summary generated.';
-            verdictEl.textContent = exp.match_verdict || 'Evaluated';
-
-            strengthsEl.innerHTML = '';
-            (exp.strengths || []).forEach(s => {
-              const li = document.createElement('li');
-              li.textContent = s;
-              strengthsEl.appendChild(li);
-            });
-
-            growthEl.innerHTML = '';
-            (exp.areas_for_growth || []).forEach(g => {
-              const li = document.createElement('li');
-              li.textContent = g;
-              growthEl.appendChild(li);
-            });
-            return;
-          }
-        }
-      } catch (err) {
-        console.warn('AI explain fetch failed:', err);
-      }
-
-      summaryEl.textContent = 'Analysis complete. Review matched competencies and targeted skill gaps above.';
-      verdictEl.textContent = 'Complete';
-    }
-
-    async function generateInterviewPrep() {
-      if (!currentAnalysisId) {
-        alert('Please run a fit analysis first before generating interview questions.');
-        return;
-      }
-
-      const btn = document.getElementById('generate-prep-btn');
-      const spinner = document.getElementById('prep-spinner');
-      const btnText = document.getElementById('prep-btn-text');
-      const resultsContainer = document.getElementById('interview-prep-results');
-
-      btn.disabled = true;
-      spinner.style.display = 'inline-block';
-      btnText.textContent = 'Generating Tailored Questions with LLM...';
-
-      try {
-        const token = await ensureAuthSession();
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const res = await fetch(`/api/v1/ai/interview-prep/${currentAnalysisId}`, {
-          method: 'POST',
-          headers
-        });
-
-        if (res.ok) {
-          const aiData = await res.json();
-          const prep = aiData.interview_prep;
-          if (prep) {
-            resultsContainer.style.display = 'block';
-
-            // Technical Questions
-            const techList = document.getElementById('tech-questions-list');
-            techList.innerHTML = '';
-            (prep.technical_questions || []).forEach(q => {
-              const card = document.createElement('div');
-              card.className = 'question-card';
-              card.innerHTML = `
-                <div class="question-title">💡 ${q.question}</div>
-                <div class="question-concept"><strong>Core Concepts:</strong> ${q.expected_key_concepts || 'System fundamentals'}</div>
-                <div class="question-tip"><strong>Candidate Tip:</strong> ${q.tip || 'Structure response clearly with trade-offs.'}</div>
-              `;
-              techList.appendChild(card);
-            });
-
-            // Behavioral Questions
-            const behList = document.getElementById('behavioral-questions-list');
-            behList.innerHTML = '';
-            (prep.behavioral_questions || []).forEach(b => {
-              const card = document.createElement('div');
-              card.className = 'question-card';
-              card.innerHTML = `
-                <div class="question-title">🎯 ${b.question}</div>
-                <div class="question-tip" style="border-color: #8b5cf6;"><strong>STAR Focus:</strong> ${b.star_focus || 'Situation, Task, Action, Result'}</div>
-              `;
-              behList.appendChild(card);
-            });
-
-            // Preparation Tips
-            const tipsList = document.getElementById('prep-tips-list');
-            tipsList.innerHTML = '';
-            (prep.preparation_tips || []).forEach(t => {
-              const li = document.createElement('li');
-              li.textContent = t;
-              tipsList.appendChild(li);
-            });
-
-            btnText.textContent = '✓ Interview Questions Generated';
-            return;
-          }
-        }
-      } catch (err) {
-        console.error('Interview prep generation error:', err);
-      } finally {
-        btn.disabled = false;
-        spinner.style.display = 'none';
-        if (btnText.textContent !== '✓ Interview Questions Generated') {
-          btnText.textContent = '🎯 Generate Tailored Interview Prep & Questions';
-        }
-      }
-    }
-
-    async function askRAG() {
-      const query = document.getElementById('rag-query-input').value.trim();
-      if (!query) return;
-
-      const container = document.getElementById('rag-response-container');
-      container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 0.5rem 0;">Searching document intelligence...</div>';
-
-      try {
-        const token = await ensureAuthSession();
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const res = await fetch('/api/v1/rag/query', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ query: query, top_k: 3 })
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          container.innerHTML = `
-            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1rem; margin-top: 0.75rem;">
-              <h5 style="color: #a5b4fc; margin-bottom: 0.4rem; font-size: 0.9rem;">Synthesis:</h5>
-              <p style="font-size: 0.875rem; line-height: 1.6;">${data.answer}</p>
-              <div style="margin-top: 0.75rem;">
-                <strong style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Verified Citations:</strong>
-                ${(data.citations || []).map(c => `
-                  <div class="citation-card">
-                    <div class="citation-header">
-                      <span>Chunk #${c.chunk_id || 1} • Similarity: ${(c.relevance_score * 100).toFixed(0)}%</span>
-                    </div>
-                    <div class="citation-text">"${c.snippet}"</div>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          `;
-          return;
-        }
-      } catch (err) {
-        console.error('RAG query error:', err);
-      }
-      container.innerHTML = '<div style="color: var(--warning); font-size: 0.85rem;">Upload a resume file first to search verified vector citations.</div>';
-    }
-
-    // -------------------------------------------------------------
-    // KANBAN APPLICATION TRACKER
-    // -------------------------------------------------------------
-    async function loadKanbanBoard() {
-      try {
-        const token = await ensureAuthSession();
-        if (!token) return;
-
-        const res = await fetch('/api/v1/applications?per_page=100', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          const apps = data.items || [];
-
-          // Counts
-          let cApplied = 0, cScreening = 0, cInterviewing = 0, cOffered = 0, cRejected = 0;
-          const cols = {
-            applied: document.getElementById('col-applied'),
-            screening: document.getElementById('col-screening'),
-            interviewing: document.getElementById('col-interviewing'),
-            offered: document.getElementById('col-offered'),
-            rejected: document.getElementById('col-rejected'),
-            withdrawn: document.getElementById('col-rejected')
-          };
-
-          Object.values(cols).forEach(c => c.innerHTML = '');
-
-          apps.forEach(app => {
-            const st = (app.status || 'applied').toLowerCase();
-            if (st === 'applied') cApplied++;
-            else if (st === 'screening') cScreening++;
-            else if (st === 'interviewing') cInterviewing++;
-            else if (st === 'offered') cOffered++;
-            else cRejected++;
-
-            const targetCol = cols[st] || cols.applied;
-            const jobTitle = app.job ? app.job.title : 'Software Engineer';
-            const company = app.job ? app.job.company : 'Enterprise Company';
-            const location = app.job && app.job.location ? app.job.location : 'Remote';
-            const appliedDate = new Date(app.applied_at || app.created_at).toLocaleDateString();
-
-            const card = document.createElement('div');
-            card.className = 'app-card';
-            card.innerHTML = `
-              <div class="app-job-title">${jobTitle}</div>
-              <div class="app-company">@ ${company}</div>
-              <div class="app-meta">
-                <span>📍 ${location}</span>
-                <span>📅 ${appliedDate}</span>
-              </div>
-              ${app.notes ? `<div class="app-notes">"${app.notes}"</div>` : ''}
-              <div class="app-actions">
-                <select class="stage-select" onchange="updateApplicationStage(${app.id}, this.value)">
-                  <option value="applied" ${st === 'applied' ? 'selected' : ''}>Applied</option>
-                  <option value="screening" ${st === 'screening' ? 'selected' : ''}>Screening</option>
-                  <option value="interviewing" ${st === 'interviewing' ? 'selected' : ''}>Interviewing</option>
-                  <option value="offered" ${st === 'offered' ? 'selected' : ''}>Offered</option>
-                  <option value="rejected" ${st === 'rejected' ? 'selected' : ''}>Rejected</option>
-                </select>
-                <button class="btn-danger" onclick="deleteApplication(${app.id})">Delete</button>
-              </div>
-            `;
-            targetCol.appendChild(card);
-          });
-
-          // Update KPI stats
-          document.getElementById('stat-total').textContent = apps.length;
-          document.getElementById('stat-screening').textContent = cScreening;
-          document.getElementById('stat-interviewing').textContent = cInterviewing;
-          document.getElementById('stat-offers').textContent = cOffered;
-
-          document.getElementById('count-applied').textContent = cApplied;
-          document.getElementById('count-screening').textContent = cScreening;
-          document.getElementById('count-interviewing').textContent = cInterviewing;
-          document.getElementById('count-offered').textContent = cOffered;
-          document.getElementById('count-rejected').textContent = cRejected;
-        }
-      } catch (err) {
-        console.warn('Kanban load error:', err);
-      }
-    }
-
-    async function updateApplicationStage(appId, newStage) {
-      const token = await ensureAuthSession();
-      try {
-        const res = await fetch(`/api/v1/applications/${appId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ status: newStage })
-        });
-        if (res.ok) {
-          loadKanbanBoard();
-        }
-      } catch (e) {
-        console.error('Update stage failed:', e);
-      }
-    }
-
-    async function deleteApplication(appId) {
-      if (!confirm('Are you sure you want to remove this tracked application?')) return;
-      const token = await ensureAuthSession();
-      try {
-        const res = await fetch(`/api/v1/applications/${appId}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-          loadKanbanBoard();
-        }
-      } catch (e) {
-        console.error('Delete application failed:', e);
-      }
-    }
-
-    async function submitAddJobApplication() {
-      const title = document.getElementById('add-job-title').value;
-      const company = document.getElementById('add-job-company').value;
-      const location = document.getElementById('add-job-location').value || 'Remote';
-      const statusStage = document.getElementById('add-job-status').value;
-      const notes = document.getElementById('add-job-notes').value;
-
-      const token = await ensureAuthSession();
-      try {
-        // 1. Create Job Listing
-        const jobRes = await fetch('/api/v1/jobs', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            title: title,
-            company: company,
-            location: location,
-            description: `${title} role at ${company}. Tracked in career pipeline.`,
-            job_type: 'full_time'
-          })
-        });
-
-        if (jobRes.ok) {
-          const jobData = await jobRes.json();
-          // 2. Track Application
-          const appRes = await fetch('/api/v1/applications', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              job_id: jobData.id,
-              notes: notes
-            })
-          });
-
-          if (appRes.ok) {
-            const appData = await appRes.json();
-            // If user selected non-applied stage, update it
-            if (statusStage !== 'applied') {
-              await fetch(`/api/v1/applications/${appData.id}`, {
-                method: 'PUT',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ status: statusStage })
-              });
-            }
-
-            closeModal('modal-add-job');
-            document.getElementById('form-add-job').reset();
-            loadKanbanBoard();
-            switchAppTab('kanban');
-          }
-        }
-      } catch (e) {
-        console.error('Error adding application:', e);
-      }
-    }
-
-    async function trackAnalyzedJobInKanban() {
-      const title = document.getElementById('job-title-input').value || 'Analyzed Role';
-      const company = document.getElementById('job-company-input').value || 'Target Company';
-      const desc = document.getElementById('job-desc').value || 'Imported from analysis';
-
-      document.getElementById('add-job-title').value = title;
-      document.getElementById('add-job-company').value = company;
-      document.getElementById('add-job-notes').value = `Compatibility score analyzed in CareerAI. Target skills: ${document.getElementById('job-skills').value}`;
-      openAddJobModal();
-    }
-
-    // -------------------------------------------------------------
-    // PROFILE & SKILLS MANAGEMENT
-    // -------------------------------------------------------------
-    async function loadUserProfile() {
-      if (!currentUser) return;
-      const token = await ensureAuthSession();
-      try {
-        const res = await fetch(`/api/v1/profiles/${currentUser.id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const prof = await res.json();
-          document.getElementById('prof-headline').value = prof.headline || '';
-          document.getElementById('prof-location').value = prof.location || '';
-          document.getElementById('prof-yoe').value = prof.years_of_experience || 0;
-          document.getElementById('prof-summary').value = prof.summary || '';
-          document.getElementById('prof-linkedin').value = prof.linkedin_url || '';
-          document.getElementById('prof-github').value = prof.github_url || '';
-        }
-      } catch (e) {
-        console.warn('Could not load profile:', e);
-      }
-    }
-
-    async function saveProfile() {
-      if (!currentUser) return;
-      const token = await ensureAuthSession();
-      const payload = {
-        headline: document.getElementById('prof-headline').value,
-        location: document.getElementById('prof-location').value,
-        years_of_experience: parseFloat(document.getElementById('prof-yoe').value) || 0,
-        summary: document.getElementById('prof-summary').value,
-        linkedin_url: document.getElementById('prof-linkedin').value,
-        github_url: document.getElementById('prof-github').value
-      };
-
-      try {
-        const res = await fetch(`/api/v1/profiles/${currentUser.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(payload)
-        });
-        if (res.ok) {
-          alert('✓ Profile updated successfully!');
-        }
-      } catch (e) {
-        console.error('Save profile error:', e);
-      }
-    }
-
-    function loadSavedProfileIntoResume() {
-      const summary = document.getElementById('prof-summary').value;
-      const headline = document.getElementById('prof-headline').value;
-      if (summary || headline) {
-        document.getElementById('resume-text').value = `${headline}\n\n${summary}`;
-        alert('✓ Loaded profile headline and summary into resume text area!');
-      } else {
-        alert('Please fill out and save your profile in the "Profile & Skills" tab first.');
-      }
-    }
-
-    async function loadUserSkills() {
-      if (!currentUser) return;
-      const token = await ensureAuthSession();
-      try {
-        const res = await fetch(`/api/v1/skills/users/${currentUser.id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const skills = await res.json();
-          document.getElementById('my-skills-count').textContent = `${skills.length} Skills`;
-          const container = document.getElementById('my-skills-list');
-          container.innerHTML = '';
-
-          if (skills.length === 0) {
-            container.innerHTML = '<span style="color: var(--text-dim); font-size: 0.85rem;">No skills attached yet. Add your first skill above!</span>';
-            return;
-          }
-
-          skills.forEach(us => {
-            const skillName = us.skill ? us.skill.name : 'Skill';
-            const pill = document.createElement('div');
-            pill.className = 'skill-manager-pill';
-            pill.innerHTML = `
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span class="skill-name-txt">${skillName}</span>
-                <span class="skill-prof-badge">${us.proficiency}</span>
-                <span style="font-size: 0.725rem; color: var(--text-muted);">${us.years_of_experience || 1} yrs</span>
-              </div>
-              <button class="remove-skill-btn" onclick="deleteUserSkill(${us.skill_id})" title="Remove skill">&times;</button>
-            `;
-            container.appendChild(pill);
-          });
-        }
-      } catch (e) {
-        console.warn('Skills load error:', e);
-      }
-    }
-
-    async function addSkillToProfile() {
-      const name = document.getElementById('new-skill-name').value.trim();
-      const prof = document.getElementById('new-skill-prof').value;
-      const yoe = parseFloat(document.getElementById('new-skill-yoe').value) || 1.0;
-
-      if (!name) return;
-      const token = await ensureAuthSession();
-
-      try {
-        // 1. Ensure Skill in taxonomy
-        const createSkillRes = await fetch('/api/v1/skills', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ name: name, category: 'Technical' })
-        });
-
-        let skillId = null;
-        if (createSkillRes.ok) {
-          const sData = await createSkillRes.json();
-          skillId = sData.id;
-        } else {
-          // If already exists, search for it
-          const searchRes = await fetch(`/api/v1/skills?per_page=100`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (searchRes.ok) {
-            const listData = await searchRes.json();
-            const match = (listData.items || []).find(s => s.name.toLowerCase() === name.toLowerCase());
-            if (match) skillId = match.id;
-          }
-        }
-
-        if (skillId) {
-          // 2. Associate with User
-          await fetch(`/api/v1/skills/users/${currentUser.id}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              skill_id: skillId,
-              proficiency: prof,
-              years_of_experience: yoe
-            })
-          });
-
-          document.getElementById('new-skill-name').value = '';
-          loadUserSkills();
-        }
-      } catch (e) {
-        console.error('Add skill error:', e);
-      }
-    }
-
-    async function deleteUserSkill(skillId) {
-      const token = await ensureAuthSession();
-      try {
-        await fetch(`/api/v1/skills/users/${currentUser.id}/${skillId}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        loadUserSkills();
-      } catch (e) {
-        console.error('Delete skill error:', e);
-      }
-    }
-
-    // -------------------------------------------------------------
-    // DOCUMENT LIBRARY & ACTIONS
-    // -------------------------------------------------------------
-    async function loadDocumentsList() {
-      const token = await ensureAuthSession();
-      if (!token) return;
-
-      try {
-        const res = await fetch('/api/v1/documents?per_page=50', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          const docs = data.items || [];
-          const tbody = document.getElementById('documents-table-body');
-          tbody.innerHTML = '';
-
-          if (docs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-dim);">No documents uploaded yet.</td></tr>';
-            return;
-          }
-
-          docs.forEach(doc => {
-            const sizeKb = ((doc.file_size_bytes || 0) / 1024).toFixed(1);
-            const dateStr = new Date(doc.created_at).toLocaleDateString();
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td><strong>📄 ${doc.filename}</strong></td>
-              <td><span class="badge purple">${doc.doc_type || 'resume'}</span></td>
-              <td>${sizeKb} KB</td>
-              <td><span class="badge green">${doc.status}</span></td>
-              <td><span class="badge" id="rag-badge-${doc.id}">Indexed</span></td>
-              <td>${dateStr}</td>
-              <td style="text-align: right;">
-                <button class="btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="analyzeDocumentFromLibrary(${doc.id})">🔍 Analyze</button>
-                <button class="btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="indexDocumentRAG(${doc.id})">🤖 Index RAG</button>
-                <a href="/api/v1/documents/${doc.id}/download" target="_blank" class="btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; text-decoration: none;">📥 Download</a>
-                <button class="btn-danger" onclick="deleteDocumentFromLibrary(${doc.id})">🗑️</button>
-              </td>
-            `;
-            tbody.appendChild(tr);
-          });
-        }
-      } catch (e) {
-        console.warn('Documents list error:', e);
-      }
-    }
-
-    async function handleLibraryUpload(input) {
-      if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const token = await ensureAuthSession();
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-          const res = await fetch('/api/v1/documents/upload', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
-            body: formData
-          });
-          if (res.ok) {
-            alert(`✓ Uploaded and parsed ${file.name}!`);
-            loadDocumentsList();
-          }
-        } catch (e) {
-          console.error('Upload library file error:', e);
-        }
-      }
-    }
-
-    async function analyzeDocumentFromLibrary(docId) {
-      switchAppTab('analyzer');
-      switchMode('file');
-      document.getElementById('file-label').textContent = `Document ID: #${docId} loaded for analysis. Click "Analyze Fit & Readiness" below.`;
-      // Trigger analysis with document_id directly
-      const token = await ensureAuthSession();
-      const jobDesc = document.getElementById('job-desc').value;
-      const skillsRaw = document.getElementById('job-skills').value;
-      const jobSkills = skillsRaw.split(',').map(s => s.trim()).filter(Boolean);
-
-      const res = await fetch('/api/v1/ml/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          document_id: docId,
-          job_description: jobDesc,
-          job_skills: jobSkills
-        })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        renderResults(data, `Document #${docId}`);
-      }
-    }
-
-    async function indexDocumentRAG(docId) {
-      const token = await ensureAuthSession();
-      try {
-        const res = await fetch(`/api/v1/rag/index/${docId}`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          alert(`✓ Indexed ${data.chunks_indexed} semantic chunks into multi-tenant vector store!`);
-        }
-      } catch (e) {
-        console.error('RAG indexing error:', e);
-      }
-    }
-
-    async function deleteDocumentFromLibrary(docId) {
-      if (!confirm('Are you sure you want to delete this document and its vector embeddings?')) return;
-      const token = await ensureAuthSession();
-      try {
-        await fetch(`/api/v1/documents/${docId}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        loadDocumentsList();
-      } catch (e) {
-        console.error('Delete doc error:', e);
-      }
-    }
-
-    // -------------------------------------------------------------
-    // ANALYSIS HISTORY & AUDIT LOG
-    // -------------------------------------------------------------
-    async function loadAnalysisHistory() {
-      const token = await ensureAuthSession();
-      if (!token) return;
-
-      try {
-        const res = await fetch('/api/v1/ml/analyses?page_size=20', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          const items = data.items || [];
-          const tbody = document.getElementById('history-table-body');
-          tbody.innerHTML = '';
-
-          if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-dim);">No past analyses found. Run an evaluation to start tracking history!</td></tr>';
-            return;
-          }
-
-          items.forEach(a => {
-            const score = Math.round(a.compatibility_score || 0);
-            const scoreColor = score >= 80 ? 'green' : (score >= 50 ? 'purple' : 'orange');
-            const matchedCount = (a.matched_skills || []).length;
-            const gapsCount = (a.missing_skills || []).length;
-            const dateStr = new Date(a.created_at).toLocaleString();
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>#${a.id}</td>
-              <td><span class="badge ${scoreColor}" style="font-size: 0.85rem; font-weight: 700;">${score}%</span></td>
-              <td>${matchedCount} skills</td>
-              <td><span style="color: #fbbf24;">${gapsCount} gaps</span></td>
-              <td><code>${a.model_version || 'v1.0.0'}</code></td>
-              <td>${a.latency_ms || 20} ms</td>
-              <td style="color: var(--text-muted); font-size: 0.8rem;">${dateStr}</td>
-              <td style="text-align: right;">
-                <button class="btn-primary" style="width: auto; padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="reloadHistoryAnalysis(${a.id})">
-                  👁️ Reload
-                </button>
-              </td>
-            `;
-            tbody.appendChild(tr);
-          });
-        }
-      } catch (e) {
-        console.warn('History load error:', e);
-      }
-    }
-
-    async function reloadHistoryAnalysis(analysisId) {
-      const token = await ensureAuthSession();
-      try {
-        const res = await fetch(`/api/v1/ml/analyses/${analysisId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          switchAppTab('analyzer');
-          renderResults(data, `Analysis #${analysisId}`);
-        }
-      } catch (e) {
-        console.error('Reload analysis error:', e);
-      }
-    }
-
-    // -------------------------------------------------------------
-    // MODAL DIALOGS & DIAGNOSTICS
-    // -------------------------------------------------------------
-    async function openMetricsModal() {
-      document.getElementById('modal-metrics').classList.add('open');
-      try {
-        const [metRes, readyRes, aiRes] = await Promise.all([
-          fetch('/metrics'),
-          fetch('/ready'),
-          fetch('/api/v1/ai/status')
-        ]);
-
-        if (metRes.ok) {
-          const m = await metRes.json();
-          document.getElementById('metric-ram').textContent = `${m.memory_rss_mb} MB`;
-          document.getElementById('metric-python').textContent = `Python ${m.python_version}`;
-          document.getElementById('metric-threads').textContent = `${m.threads_count} threads`;
-          document.getElementById('metric-model').textContent = m.model_version;
-        }
-
-        if (readyRes.ok) {
-          const r = await readyRes.json();
-          document.getElementById('metric-db').textContent = `Online (${r.checks ? r.checks.database : 'healthy'})`;
-        }
-
-        if (aiRes.ok) {
-          const a = await aiRes.json();
-          document.getElementById('metric-llm').textContent = `${a.provider_label} (${a.model})`;
-        }
-      } catch (e) {
-        console.warn('Metrics fetch error:', e);
-      }
-    }
-
-    function openAuthModal() {
-      document.getElementById('modal-auth').classList.add('open');
-    }
-
-    function openAddJobModal() {
-      document.getElementById('modal-add-job').classList.add('open');
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('open');
-    }
-
-    function switchAuthTab(mode) {
-      document.getElementById('auth-tab-login').classList.toggle('active', mode === 'login');
-      document.getElementById('auth-tab-register').classList.toggle('active', mode === 'register');
-      document.getElementById('form-login').style.display = mode === 'login' ? 'block' : 'none';
-      document.getElementById('form-register').style.display = mode === 'register' ? 'block' : 'none';
-    }
-
-    async function submitLogin() {
-      const email = document.getElementById('login-email').value;
-      const pass = document.getElementById('login-pass').value;
-
-      try {
-        const res = await fetch('/api/v1/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email, password: pass })
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          authAccessToken = data.tokens.access_token;
-          currentUser = data.user;
-          localStorage.setItem('careerai_token', authAccessToken);
-          updateUserPillUI();
-          closeModal('modal-auth');
-          alert(`✓ Welcome back, ${currentUser.full_name || currentUser.email}!`);
-          loadKanbanBoard();
-          loadUserProfile();
-          loadUserSkills();
-          loadDocumentsList();
-          loadAnalysisHistory();
-        } else {
-          const err = await res.json();
-          alert('Login failed: ' + (err.error ? err.error.message : 'Invalid credentials'));
-        }
-      } catch (e) {
-        alert('Network error logging in');
-      }
-    }
-
-    async function submitRegister() {
-      const name = document.getElementById('reg-name').value;
-      const email = document.getElementById('reg-email').value;
-      const pass = document.getElementById('reg-pass').value;
-
-      try {
-        const res = await fetch('/api/v1/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ full_name: name, email: email, password: pass })
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          authAccessToken = data.tokens.access_token;
-          currentUser = data.user;
-          localStorage.setItem('careerai_token', authAccessToken);
-          updateUserPillUI();
-          closeModal('modal-auth');
-          alert(`✓ Account created! Welcome, ${name}!`);
-          loadKanbanBoard();
-          loadUserProfile();
-          loadUserSkills();
-          loadDocumentsList();
-          loadAnalysisHistory();
-        } else {
-          const err = await res.json();
-          alert('Registration error: ' + (err.error ? err.error.message : 'Could not register'));
-        }
-      } catch (e) {
-        alert('Network error registering');
-      }
-    }
-
-    function resetToGuestSession() {
-      localStorage.removeItem('careerai_token');
-      authAccessToken = null;
-      currentUser = null;
-      closeModal('modal-auth');
-      ensureAuthSession().then(() => {
-        loadKanbanBoard();
-        loadUserProfile();
-        loadUserSkills();
-        loadDocumentsList();
-        loadAnalysisHistory();
-        alert('Switched to a fresh guest session!');
-      });
-    }
-  </script>
+  <!-- Modal 4: Universal Confirmation Sheet (Replaces native confirm) -->
+  <div class="modal-backdrop" id="modal-confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-sheet" style="max-width: 420px; text-align: center;">
+      <h2 class="modal-title" id="confirm-title" style="margin-bottom: 8px;">Confirm Action</h2>
+      <p id="confirm-message" style="font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: var(--space-5);">
+        Are you sure you want to proceed?
+      </p>
+      <div style="display: flex; gap: var(--space-3); justify-content: center;">
+        <button class="btn btn-secondary" id="confirm-cancel-btn" style="flex: 1;">Cancel</button>
+        <button class="btn btn-primary" id="confirm-action-btn" style="flex: 1;">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Application Logic Modules -->
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

@@ -79,7 +79,7 @@ graph LR
 - **FR-3.2**: Maximum file size enforcement (10 MB limit).
 - **FR-3.3**: MIME-type and magic-byte inspection to prevent arbitrary file upload vulnerabilities.
 - **FR-3.4**: Text extraction pipeline: `pypdf` for PDF, `python-docx` for Word documents, UTF-8 decoders for plain text.
-- **FR-3.5**: Pluggable storage architecture: Local filesystem storage for development/test and Amazon S3 for cloud production.
+- **FR-3.5**: Robust storage architecture: Local and persistent volume filesystem storage with path traversal protection.
 
 ### Module 4: Deterministic Machine Learning Engine
 - **FR-4.1**: Multi-dimensional feature extraction:
@@ -148,7 +148,7 @@ graph LR
 - **Core API Latency**: P95 $< 50\text{ ms}$ for non-LLM transactional endpoints.
 - **RAG Query Latency**: P95 $< 350\text{ ms}$ (including vector retrieval and LLM synthesis).
 - **Throughput Target**: Sustained $\ge 600\text{ RPS}$ under concurrent load with zero 5xx errors.
-- **Concurrency & Scaling**: Fully stateless application tier deployable across horizontally auto-scaled AWS ECS Fargate tasks.
+- **Concurrency & Scaling**: Fully stateless application tier deployable across horizontally auto-scaled container instances / Kubernetes pods.
 
 ### 5.2 Reliability & Fault Tolerance
 - **Service Availability Target**: $99.9\%$ monthly uptime.
@@ -182,37 +182,37 @@ graph TB
     end
 
     subgraph "Edge / Ingress"
-        ALB[AWS Application Load Balancer]
-        WAF[AWS WAF & Rate Limiting]
+        LB[Load Balancer / Reverse Proxy]
+        WAF[WAF & Rate Limiting Middleware]
     end
 
-    subgraph "Application Tier (ECS Fargate)"
+    subgraph "Application Tier (Containers)"
         FastAPI[FastAPI REST API]
         Worker[Async Background Worker]
     end
 
     subgraph "Data & Persistence Tier"
-        RDS[(Amazon RDS MySQL 8.0)]
-        Redis[(ElastiCache Redis 7.0)]
-        S3[(Amazon S3 Bucket)]
+        MySQL[(MySQL 8.0 Database)]
+        Redis[(Redis 7.0 Cache & Queue)]
+        Storage[(Document Storage Volumes)]
         Chroma[(Vector Store)]
     end
 
     subgraph "External Providers"
-        OpenAI[LLM APIs]
+        LLM[LLM Engine Providers]
         CustomerWebhook[Customer Webhook Endpoints]
     end
 
-    Web --> WAF --> ALB --> FastAPI
-    APIClient --> WAF --> ALB --> FastAPI
-    FastAPI --> RDS
+    Web --> WAF --> LB --> FastAPI
+    APIClient --> WAF --> LB --> FastAPI
+    FastAPI --> MySQL
     FastAPI --> Redis
-    FastAPI --> S3
+    FastAPI --> Storage
     FastAPI --> Chroma
-    FastAPI --> OpenAI
+    FastAPI --> LLM
     FastAPI -.->|Enqueue Tasks| Redis
     Redis -.->|Consume Tasks| Worker
-    Worker --> RDS
+    Worker --> MySQL
     Worker --> CustomerWebhook
 ```
 
@@ -226,8 +226,8 @@ graph TB
 | **Caching & Message Broker** | Redis 7.0 (aioredis) | Sub-millisecond latency for rate limiting, idempotency locks, LLM caching, and retry task queues. |
 | **Machine Learning** | scikit-learn (RandomForest) | Lightweight, CPU-efficient, deterministic inference (<15ms) without GPU infrastructure overhead. |
 | **Vector Search / Embeddings** | SentenceTransformers / ChromaDB | Local dense vector representations with zero external data sharing and sub-50ms similarity search. |
-| **Object Storage** | Amazon S3 / Local Storage | Secure, scalable storage for resume documents with signed access. |
-| **Infrastructure as Code** | Terraform | Reproducible multi-environment provisioning (VPC, RDS, Redis, ECS, ALB, ECR). |
+| **Object Storage** | Local / Persistent Volume Storage | Secure, isolated local filesystem storage with path traversal protection. |
+| **Infrastructure & Deployment** | Docker & Docker Compose | Reproducible multi-stage container builds and zero-downtime rolling deploys. |
 
 ---
 
@@ -311,7 +311,7 @@ gantt
     Phase 7: Multi-Tenant RAG & Embeddings      :done, p7, 2026-07, 2026-08
     Phase 8: Test Automation Suite (84%+ Cov)   :done, p8, 2026-08, 2026-09
     Phase 9: Docker & GitHub Actions CI/CD      :done, p9, 2026-09, 2026-09
-    Phase 10: Terraform AWS ECS Infrastructure  :done, p10, 2026-09, 2026-10
+    Phase 10: Container Infrastructure & Deployment :done, p10, 2026-09, 2026-10
     Phase 11: Redis Hardening & Load Testing    :done, p11, 2026-10, 2026-10
     Phase 12: Asynchronous Webhooks & UI        :done, p12, 2026-10, 2026-10
     section Future Horizons
@@ -323,7 +323,7 @@ gantt
 ### 9.1 Completed Milestones (Current State)
 - **Phase 1–4**: Foundational async scaffolding, database relationships, secure token rotation, document parsing.
 - **Phase 5–7**: Trained RandomForest scoring ($R^2=0.9927$), provider-agnostic LLM with jitter retries, vector RAG with citations.
-- **Phase 8–10**: Automated testing (154 passing tests, ~89% coverage), Docker multi-stage builds, Terraform AWS infrastructure.
+- **Phase 8–10**: Automated testing (154 passing tests, ~89% coverage), Docker multi-stage builds, container orchestration.
 - **Phase 11–12**: Redis caching & idempotency middleware, background worker retry queues, asynchronous webhooks with HMAC-SHA256, dark-mode dashboard.
 
 ### 9.2 Future Horizons

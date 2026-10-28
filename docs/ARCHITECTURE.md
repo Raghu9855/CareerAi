@@ -8,8 +8,8 @@ CareerAI is an enterprise-grade AI-powered job intelligence platform backend bui
 
 ```mermaid
 graph TD
-    Client[Web & Mobile Clients] -->|HTTPS :443| ALB[Application Load Balancer]
-    ALB -->|Reverse Proxy :8000| FastAPI[FastAPI Application Tier]
+    Client[Web & Mobile Clients] -->|HTTPS :443| LB[Reverse Proxy / Ingress]
+    LB -->|Reverse Proxy :8000| FastAPI[FastAPI Application Tier]
 
     subgraph "Application Middleware Stack"
         FastAPI --> SecHead[Security Headers Middleware]
@@ -28,12 +28,12 @@ graph TD
     end
 
     subgraph "Data & Storage Persistence"
-        AuthSvc --> MySQL[(Amazon RDS MySQL 8.0)]
-        DocSvc --> S3[(Amazon S3 Documents)]
+        AuthSvc --> MySQL[(MySQL 8.0 Database)]
+        DocSvc --> Storage[(Document Storage Volumes)]
         MLSvc --> MLModel[RandomForest Model Artifact]
         AISvc --> LLM[Resilient LLM Client]
         RAGSvc --> VecStore[(Vector Store)]
-        RateLim --> Redis[(Amazon ElastiCache Redis)]
+        RateLim --> Redis[(Redis 7.0 Cache & Queue)]
         Idemp --> Redis
     end
 ```
@@ -61,9 +61,9 @@ CareerAI adheres to strict separation of concerns across clean architectural bou
 
 ## 3. Horizontal Scaling & High Availability
 
-CareerAI is completely **stateless**, enabling seamless horizontal scaling across auto-scaling Fargate task groups:
+CareerAI is completely **stateless**, enabling seamless horizontal scaling across auto-scaling container task groups / pods:
 
-- **Shared State**: All application state resides exclusively in MySQL 8.0, Redis, and Amazon S3.
+- **Shared State**: All application state resides exclusively in MySQL 8.0, Redis, and persistent storage volumes.
 - **Connection Pooling**: SQLAlchemy async engine utilizes tuned connection pooling (`pool_size=20`, `max_overflow=10`, `pool_recycle=1800`, `pool_pre_ping=True`).
 - **Read Replicas**: For read-heavy traffic (job searches, profile lookups), database read traffic can be directed to MySQL Read Replicas via secondary engine bindings without code modifications.
 - **Background Worker**: Heavy extraction, chunking, and batch inference tasks are offloaded to asynchronous background workers (`app/workers/worker.py`) backed by Redis task queues.

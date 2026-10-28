@@ -29,11 +29,11 @@ class JobFactory:
     title: str = "Senior Cloud Engineer"
     company: str = "CloudScale Tech"
     description: str = (
-        "Seeking a Senior Cloud Engineer experienced in AWS ECS, Docker, Terraform, "
+        "Seeking a Senior Cloud Engineer experienced in Kubernetes, Docker, Terraform, "
         "and MySQL. Redis caching knowledge and microservices design are required."
     )
     location: str = "Remote"
-    required_skills: list[str] = field(default_factory=lambda: ["AWS", "Docker", "Terraform", "MySQL", "Redis"])
+    required_skills: list[str] = field(default_factory=lambda: ["Kubernetes", "Docker", "Terraform", "MySQL", "Redis"])
 
     def as_dict(self) -> dict:
         return {

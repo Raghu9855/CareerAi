@@ -20,9 +20,9 @@ async def test_rag_end_to_end_indexing_query_and_citations(client: AsyncClient) 
     # 2. Upload Document
     doc_content = (
         b"Alice Smith - Cloud Platform Architect.\n"
-        b"Extensive expertise deploying microservices to AWS ECS, Kubernetes, and Terraform.\n"
+        b"Extensive expertise deploying microservices to Docker, Kubernetes, and Terraform.\n"
         b"Architected high-scale MySQL databases and configured Redis caching clusters.\n"
-        b"Earned AWS Certified Solutions Architect Professional certification."
+        b"Earned Certified Kubernetes Administrator Professional certification."
     )
     upload_resp = await client.post(
         "/api/v1/documents/upload",

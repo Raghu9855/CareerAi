@@ -89,8 +89,8 @@ Content-Type: application/json
 
 {
   "document_id": 1,
-  "job_description": "We are seeking a Senior Cloud Platform Engineer with deep expertise in Python, FastAPI, Docker, and AWS.",
-  "job_skills": ["Python", "FastAPI", "Docker", "AWS", "Kubernetes"]
+  "job_description": "We are seeking a Senior Cloud Platform Engineer with deep expertise in Python, FastAPI, Docker, and Linux.",
+  "job_skills": ["Python", "FastAPI", "Docker", "Linux", "Kubernetes"]
 }
 ```
 
@@ -100,7 +100,7 @@ Content-Type: application/json
   "id": 12,
   "compatibility_score": 87.4,
   "skill_match_score": 80.0,
-  "matched_skills": ["Python", "FastAPI", "Docker", "AWS"],
+  "matched_skills": ["Python", "FastAPI", "Docker", "Linux"],
   "missing_skills": [
     {
       "skill": "Kubernetes",
@@ -129,13 +129,13 @@ Content-Type: application/json
 ```json
 {
   "question": "What databases and cloud platforms does the candidate specialize in?",
-  "answer": "The candidate has extensive experience with MySQL, Redis, and AWS ECS cloud infrastructure as stated in their resume.",
+  "answer": "The candidate has extensive experience with MySQL, Redis, and Linux container infrastructure as stated in their resume.",
   "citations": [
     {
       "document_id": 1,
       "filename": "alice_resume.txt",
       "chunk_index": 0,
-      "text_snippet": "Extensive expertise deploying microservices to AWS ECS... Architected high-scale MySQL databases and configured Redis caching clusters.",
+      "text_snippet": "Extensive expertise deploying microservices to Docker and Kubernetes... Architected high-scale MySQL databases and configured Redis caching clusters.",
       "relevance_score": 0.884
     }
   ],
